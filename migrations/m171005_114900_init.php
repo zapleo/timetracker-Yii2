@@ -110,7 +110,8 @@ ALTER TABLE `users`
 -- Индексы таблицы `users_token`
 --
 ALTER TABLE `users_token`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
 
 --
 -- Индексы таблицы `work_log`
@@ -151,7 +152,10 @@ ALTER TABLE `work_log`
 -- Ограничения внешнего ключа таблицы `work_log`
 --
 ALTER TABLE `work_log`
-  ADD CONSTRAINT `work_log_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+  ADD CONSTRAINT `work_log_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  
+ALTER TABLE `users_token`
+  ADD CONSTRAINT `users_token_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

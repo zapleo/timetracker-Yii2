@@ -76,9 +76,14 @@ class SiteController extends Controller
         }
 
         $model = new LoginForm();
+
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
             return $this->goBack();
         }
+
+        if ($model->user_jira)
+            return $this->render('signup', ['model' => $model]);
+
         return $this->render('login', [
             'model' => $model,
         ]);
