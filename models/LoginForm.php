@@ -10,6 +10,7 @@ use app\helpers\JiraAuthenticationHelper;
  * LoginForm is the model behind the login form.
  *
  * @property User|null $user This property is read-only.
+ * @property array $user_jira
  *
  */
 class LoginForm extends Model
@@ -46,7 +47,6 @@ class LoginForm extends Model
     public function validateAuthentication($attribute, $params)
     {
         if (!$this->hasErrors()) {
-
 
             if (!$this->getUserFromJira()) {
                 $this->addError($attribute, 'Incorrect email or password.');
@@ -85,7 +85,7 @@ class LoginForm extends Model
     public function getUserFromJira()
     {
         if ($this->user_jira === false) {
-            $this->user_jira = (new JiraAuthenticationHelper())->getUser($this->email, $this->password);
+            $this->user_jira = (new JiraAuthenticationHelper($this->email, $this->password))->getUser();
         }
         return $this->user_jira;
     }
