@@ -7,10 +7,18 @@ $config = [
     'id' => 'tracker',
     'basePath' => dirname(__DIR__),
     'bootstrap' => ['log'],
+    'modules' => [
+        'api' => [
+            'class' => 'app\modules\api\Module',
+        ]
+    ],
     'components' => [
         'request' => [
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
             'cookieValidationKey' => 'UA4j_nvYHHd1ARH9iv700_i5MwkbHGE8',
+            'parsers' => [
+                'application/json' => 'yii\web\JsonParser',
+            ],
         ],
         'cache' => [
             'class' => 'yii\caching\FileCache',
@@ -43,6 +51,8 @@ $config = [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
+                'api/<action>' => 'api/default/<action>',
+                'api/<action>/<id:[\d]+>' => 'api/default/<action>',
                 '<controller>' => '<controller>/index',
                 '<controller>/<action>' => '<controller>/<action>',
                 '<controller>/<action>/<id:[\d]+>' => '<controller>/<action>',
