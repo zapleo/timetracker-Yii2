@@ -12,6 +12,7 @@ use Yii;
  * @property integer $countMouseEvent
  * @property integer $countKeyboardEvent
  * @property string $screenshot
+ * @property string $screenshot_preview
  * @property string $dateTime
  * @property integer $user_id
  * @property string $issueKey
@@ -38,7 +39,7 @@ class WorkLog extends \yii\db\ActiveRecord
             [['activityIndex', 'countMouseEvent', 'countKeyboardEvent', 'screenshot', 'user_id', 'issueKey'], 'required'],
             [['activityIndex', 'countMouseEvent', 'countKeyboardEvent', 'user_id', 'workTime'], 'integer'],
             [['dateTime'], 'safe'],
-            [['screenshot'], 'string', 'max' => 255],
+            [['screenshot', 'screenshot_preview'], 'string', 'max' => 255],
             [['issueKey'], 'string', 'max' => 10],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['user_id' => 'id']],
         ];
@@ -55,6 +56,7 @@ class WorkLog extends \yii\db\ActiveRecord
             'countMouseEvent' => 'Count Mouse Event',
             'countKeyboardEvent' => 'Count Keyboard Event',
             'screenshot' => 'Screenshot',
+            'screenshot_preview' => 'Screenshot preview',
             'dateTime' => 'Date Time',
             'user_id' => 'User ID',
             'issueKey' => 'Issue Key',

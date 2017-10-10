@@ -16,7 +16,5 @@ class m171006_075853_add_columns_to_users_table extends Migration
         $this->dropColumn('users', 'auth_key');
         $this->dropColumn('users', 'password_hash');
         $this->dropColumn('users', 'password_reset_token');
-
-        return false;
     }
 }
