@@ -11,6 +11,7 @@ namespace app\controllers;
 
 use app\controllers\base\BaseController;
 use app\models\User;
+use yii\db\Query;
 use yii\web\HttpException;
 
 class SystemController extends BaseController
@@ -98,6 +99,42 @@ class SystemController extends BaseController
             return $info->toArray();
         }
         throw new HttpException(403);
+    }
+
+
+    public function actionGetProjects()
+    {
+        $uid = \Yii::$app->request->post('uid',false);
+        $month = \Yii::$app->request->post('month',false);
+
+        if(!\Yii::$app->user->identity->isAdmin())
+            $uid = array(\Yii::$app->user->id);
+
+        if ($uid) {
+
+            if (!$month) {
+                $timeStart = $this->actionGetDate();
+                $timeEnd = $this->actionGetDate(1);
+            } else {
+                $date = new \DateTime();
+                $timeStart = $date->format('Y-'.$month.'-01 00:00:00');
+                $timeEnd = $date->format('Y-'.$month.'-31 23:59:00');
+            }
+
+            // Select user projects
+            $in  = implode(',',$uid);
+            $query = new Query();
+            $data = $query->select(["DISTINCT SUBSTRING_INDEX(issueKey, '-', 1 ) AS project"])
+                ->from('work_log')->where('user_id IN ('.$in.')')
+                ->andWhere('dateTime BETWEEN "'.$timeStart.'" AND "'.$timeEnd.'"')->orderBy('project')
+                ->all();
+
+            $this->formatJson();
+
+            return $data;
+        }
+
+        return 0;
     }
 
 
