@@ -2,6 +2,8 @@
 
 namespace app\controllers;
 
+use app\models\SignUpForm;
+use app\models\User;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
@@ -76,10 +78,40 @@ class SiteController extends Controller
         }
 
         $model = new LoginForm();
+
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
             return $this->goBack();
         }
+
+        if ($model->user_jira) {
+            $signup_model = new SignUpForm();
+            $signup_model->email = $model->email;
+            $signup_model->password = $model->password;
+            $signup_model->getUserFromJira();
+
+            return $this->render('signup', ['model' => $signup_model]);
+        }
+
         return $this->render('login', [
+            'model' => $model,
+        ]);
+    }
+
+    public function actionSignUp()
+    {
+        if (!Yii::$app->user->isGuest) {
+            return $this->goHome();
+        }
+
+        $model = new SignUpForm();
+
+        if ($model->load(Yii::$app->request->post()) && $model->signup())
+            return $this->goBack();
+
+        if (!$model->user_jira)
+            $this->redirect('/site/login');
+
+        return $this->render('signup', [
             'model' => $model,
         ]);
     }

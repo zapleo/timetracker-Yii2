@@ -38,7 +38,7 @@ CREATE TABLE `tracker_version` (
   `id` int(10) NOT NULL,
   `version` varchar(10) NOT NULL,
   `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=MyISAM DEFAULT CHARSET=cp1251;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -58,18 +58,6 @@ CREATE TABLE `users` (
   `rights` int(1) NOT NULL DEFAULT \'0\',
   `hide` int(1) NOT NULL DEFAULT \'0\'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
-
---
--- Структура таблицы `users_token`
---
-
-CREATE TABLE `users_token` (
-  `id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
-  `token` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -107,12 +95,6 @@ ALTER TABLE `users`
   ADD UNIQUE KEY `email` (`email`);
 
 --
--- Индексы таблицы `users_token`
---
-ALTER TABLE `users_token`
-  ADD PRIMARY KEY (`id`);
-
---
 -- Индексы таблицы `work_log`
 --
 ALTER TABLE `work_log`
@@ -127,22 +109,17 @@ ALTER TABLE `work_log`
 -- AUTO_INCREMENT для таблицы `tracker_version`
 --
 ALTER TABLE `tracker_version`
-  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 --
 -- AUTO_INCREMENT для таблицы `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
---
--- AUTO_INCREMENT для таблицы `users_token`
---
-ALTER TABLE `users_token`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 --
 -- AUTO_INCREMENT для таблицы `work_log`
 --
 ALTER TABLE `work_log`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4054;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 --
 -- Ограничения внешнего ключа сохраненных таблиц
 --
@@ -151,7 +128,10 @@ ALTER TABLE `work_log`
 -- Ограничения внешнего ключа таблицы `work_log`
 --
 ALTER TABLE `work_log`
-  ADD CONSTRAINT `work_log_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+  ADD CONSTRAINT `work_log_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  
+ALTER TABLE `users_token`
+  ADD CONSTRAINT `users_token_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
