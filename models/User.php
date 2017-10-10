@@ -165,4 +165,9 @@ class User extends ActiveRecord implements IdentityInterface
     {
         return $this->password_hash === $password;
     }
+
+    public function isAdmin()
+    {
+        return $this->rights;
+    }
 }

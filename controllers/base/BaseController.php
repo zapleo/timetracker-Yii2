@@ -11,6 +11,7 @@ namespace app\controllers\base;
 
 use yii\filters\AccessControl;
 use yii\web\Controller;
+use yii\web\Response;
 
 class BaseController extends Controller
 {
@@ -27,5 +28,10 @@ class BaseController extends Controller
                 ]
             ]
         ];
+    }
+
+    protected function formatJson()
+    {
+        \Yii::$app->response->format = Response::FORMAT_JSON;
     }
 }
