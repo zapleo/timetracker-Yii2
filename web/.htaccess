@@ -1,0 +1,9 @@
+RewriteEngine on
+
+# не позволять httpd отдавать файлы, начинающиеся с точки (.htaccess, .svn, .git и прочие)
+RedirectMatch 403 /\..*$
+
+RewriteBase /
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule .* index.php?%{QUERY_STRING}
