@@ -113,3 +113,29 @@ a.desc:after {
 .nav > li > form > button.logout:focus {
     outline: none;
 }
+
+#my-profile {
+    padding: 2px 0 0 0;
+    display: none;
+}
+
+#profile-menu {
+    width: auto;
+    min-width: 225px;
+}
+
+#profile-menu>li:first-child {
+    display: block;
+    padding: 3px 20px;
+    clear: both;
+    font-weight: 400;
+    line-height: 1.42857143;
+    color: #333;
+    white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+    #my-profile {
+        display: block;
+    }
+}

@@ -53,6 +53,7 @@ $config = [
             'rules' => [
                 'api/<action>' => 'api/default/<action>',
                 'api/<action>/<id:[\d]+>' => 'api/default/<action>',
+                '<action>' => 'site/<action>',
                 '<controller>' => '<controller>/index',
                 '<controller>/<action>' => '<controller>/<action>',
                 '<controller>/<action>/<id:[\d]+>' => '<controller>/<action>',
