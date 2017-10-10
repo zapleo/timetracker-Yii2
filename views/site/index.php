@@ -2,52 +2,29 @@
 
 /* @var $this yii\web\View */
 
-$this->title = 'My Yii Application';
+$this->title = 'Time Tracker';
+
+$this->registerCssFile('@web/css/lib/bootstrap-datetimepicker.css', ['depends' => 'app\assets\AppAsset']);
+$this->registerCssFile('@web/css/lib/jquery.mCustomScrollbar.min.css', ['depends' => 'app\assets\AppAsset']);
+$this->registerCssFile('@web/css/lib/bootstrap-select.min.css', ['depends' => 'app\assets\AppAsset']);
+$this->registerCssFile('@web/css/main.css', ['depends' => 'app\assets\AppAsset']);
+
+$this->registerJsFile('@web/js/lib/moment-with-locales.min.js', ['depends' => 'app\assets\AppAsset']);
+$this->registerJsFile('@web/js/lib/bootstrap-datetimepicker.min.js', ['depends' => 'app\assets\AppAsset']);
+$this->registerJsFile('@web/js/lib/jquery.mCustomScrollbar.concat.min.js', ['depends' => 'app\assets\AppAsset']);
+$this->registerJsFile('@web/js/lib/bootstrap-select.min.js', ['depends' => 'app\assets\AppAsset']);
+$this->registerJsFile('@web/js/main.js', ['depends' => 'app\assets\AppAsset']);
 ?>
 <div class="site-index">
 
-    <div class="jumbotron">
-        <h1>Congratulations!</h1>
+    <!-- Jumbotron -->
+    <div class="jumbotron" id="main">
 
-        <p class="lead">You have successfully created your Yii-powered application.</p>
-
-        <p><a class="btn btn-lg btn-success" href="http://www.yiiframework.com">Get started with Yii</a></p>
-    </div>
-
-    <div class="body-content">
-
-        <div class="row">
-            <div class="col-lg-4">
-                <h2>Heading</h2>
-
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et
-                    dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip
-                    ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-                    fugiat nulla pariatur.</p>
-
-                <p><a class="btn btn-default" href="http://www.yiiframework.com/doc/">Yii Documentation &raquo;</a></p>
-            </div>
-            <div class="col-lg-4">
-                <h2>Heading</h2>
-
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et
-                    dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip
-                    ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-                    fugiat nulla pariatur.</p>
-
-                <p><a class="btn btn-default" href="http://www.yiiframework.com/forum/">Yii Forum &raquo;</a></p>
-            </div>
-            <div class="col-lg-4">
-                <h2>Heading</h2>
-
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et
-                    dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip
-                    ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-                    fugiat nulla pariatur.</p>
-
-                <p><a class="btn btn-default" href="http://www.yiiframework.com/extensions/">Yii Extensions &raquo;</a></p>
-            </div>
-        </div>
-
+        <h1>Time Tracker!</h1>
+        <p class="lead">
+            <?= !Yii::$app->user->isGuest ? 'Hello <b>'.Yii::$app->user->identity->first_name.' '.Yii::$app->user->identity->last_name.'</b>!' : '' ?>
+            This is Time Tracker. Select users at the top right.
+        </p>
+        <?= Yii::$app->user->isGuest ? '<p><a class="btn btn-lg btn-success" href="/login" role="button">Get started today</a></p>' : '' ?>
     </div>
 </div>
