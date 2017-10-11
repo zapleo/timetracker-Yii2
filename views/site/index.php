@@ -28,3 +28,7 @@ $this->registerJsFile('@web/js/main.js', ['depends' => 'app\assets\AppAsset']);
         <?= Yii::$app->user->isGuest ? '<p><a class="btn btn-lg btn-success" href="/login" role="button">Get started today</a></p>' : '' ?>
     </div>
 </div>
+
+<div class="work-logs">
+
+</div>

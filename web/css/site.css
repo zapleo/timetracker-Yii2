@@ -115,8 +115,12 @@ a.desc:after {
 }
 
 #my-profile {
-    padding: 2px 0 0 0;
+    padding: 2px 15px 0 15px;
     display: none;
+}
+
+#my-profile:hover, #my-profile.open {
+    background-color: #333;
 }
 
 #profile-menu {
@@ -137,5 +141,16 @@ a.desc:after {
 @media (min-width: 768px) {
     #my-profile {
         display: block;
+    }
+}
+
+.jira-logo {
+    width: 360px;
+}
+
+@media (max-width: 768px) {
+    .jira-logo {
+        width: 80%;
+        padding-left: 20%;
     }
 }
