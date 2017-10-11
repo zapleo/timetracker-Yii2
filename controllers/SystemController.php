@@ -29,7 +29,7 @@ class SystemController extends BaseController
      * @param bool $end
      * @return array|bool|mixed|string
      */
-    public function actionGetDate($end = false)
+    private function getDate($end = false)
     {
 
         $timeStart = \Yii::$app->request->get('timeStart');
@@ -113,8 +113,8 @@ class SystemController extends BaseController
         if ($uid) {
 
             if (!$month) {
-                $timeStart = $this->actionGetDate();
-                $timeEnd = $this->actionGetDate(1);
+                $timeStart = $this->getDate();
+                $timeEnd = $this->getDate(1);
             } else {
                 $date = new \DateTime();
                 $timeStart = $date->format('Y-'.$month.'-01 00:00:00');

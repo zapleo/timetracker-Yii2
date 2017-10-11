@@ -30,7 +30,7 @@ AppAsset::register($this);
 <div class="wrap">
     <?php
     NavBar::begin([
-        'brandLabel' => 'TimeTracker',
+        'brandLabel' => 'Time Tracker',
         'brandUrl' => Yii::$app->homeUrl,
         'options' => [
             'class' => 'navbar-inverse navbar-fixed-top',
@@ -38,9 +38,20 @@ AppAsset::register($this);
     ]);
     ?>
 
-    <button id="filters" type="button" class="btn btn-link" style="font-size: medium; outline: none;">
-        Filters
-    </button>
+    <?php if (!Yii::$app->user->isGuest) {
+        echo Nav::widget([
+            'options' => ['class' => 'navbar-nav navbar-left'],
+            'items' => [
+                '<li>'
+                . Html::submitButton(
+                    'Filters',
+                    ['class' => 'btn btn-link filters']
+                )
+                . '</li>',
+            ],
+        ]);
+
+    } ?>
 
     <?php
     echo Nav::widget([
@@ -67,76 +78,7 @@ AppAsset::register($this);
     NavBar::end();
     ?>
 
-    <div class="navbar navbar-inverse second-nav nav-fixed" role="navigation" style="display: none;">
-        <div class="container">
-
-            <?php if (!Yii::$app->user->isGuest): ?>
-                <div>
-
-                    <div class="navbar-form">
-                        <div class="row">
-                            <div class="col">
-
-                                <form role="form">
-
-                                    <select id="months" class="selectpicker" style="outline: none;">
-                                        <option>Nothing selected</option>
-                                        <option>January</option>
-                                        <option>February</option>
-                                        <option>March</option>
-                                        <option>April</option>
-                                        <option>May</option>
-                                        <option>June</option>
-                                        <option>July</option>
-                                        <option>August</option>
-                                        <option>September</option>
-                                        <option>October</option>
-                                        <option>November</option>
-                                        <option>December</option>
-                                    </select>
-
-                                    <div class="input-group">
-                                            <span class="input-group-addon" style="display:none;">
-                                                <input type="radio" name="date" id="date-start" checked="checked">
-                                            </span>
-                                        <input type="text" class="form-control" id="datepicker-start" />
-                                    </div><!-- /input-group -->
-
-                                    <div class="input-group">
-                                            <span class="input-group-addon" style="display:none;">
-                                                <input type="radio" id="date-end" name="date">
-                                            </span>
-                                        <input type="text" class="form-control" id="datepicker-end" />
-                                    </div><!-- /input-group -->
-
-                                    <select id="project" class="selectpicker">
-                                    </select>
-                                    <select id="task" class="selectpicker hide">
-                                    </select>
-
-                                    <div class="btn-group navbar-right">
-
-                                        <div class="btn-group-btn">
-                                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                                                Users List <span class="caret"></span>
-                                            </button>
-                                            <ul class="dropdown-menu pull-right" id="users-list">
-                                            </ul>
-                                        </div><!-- /btn-group -->
-                                    </div><!-- /input-group -->
-
-
-                                </form>
-
-                            </div>
-                        </div><!-- /.col-lg-6 -->
-                    </div>
-
-                </div>
-            <?php endif; ?>
-
-        </div>
-    </div>
+    <?= $this->render('navigation') ?>
 
     <div class="container">
         <?= Breadcrumbs::widget([
@@ -148,7 +90,7 @@ AppAsset::register($this);
 
 <footer class="footer">
     <div class="container">
-        <p class="pull-left">&copy; ZapleoSoft <?= date('Y') ?></p>
+        <p class="pull-left">&copy; <?= Html::a('ZapleoSoft', 'http://zapleo.com', ['target' => '_blank']) ?> <?= date('Y') ?></p>
 
         <p class="pull-right"><?= Yii::powered() ?></p>
     </div>
