@@ -48,10 +48,8 @@ class SystemController extends BaseController
 
             if (!$timeEnd) {
                 $timeEnd = \DateTime::createFromFormat('d/m/Y', $timeStart)->format('Y-m-d 23:59:00');
-                //$timeEnd = date('Y-m-d', strtotime($timeEnd.'+1 day'));
             } else {
                 $timeEnd = \DateTime::createFromFormat('d/m/Y', $timeEnd)->format('Y-m-d 23:59:00');
-                //$timeEnd = date('Y-m-d', strtotime($timeEnd.'+1 day'));
             }
 
             return $timeEnd;
@@ -140,7 +138,7 @@ class SystemController extends BaseController
     }
 
     /**
-     * @return array
+     * @return array|int
      */
     public function actionGetTasks()
     {
@@ -154,8 +152,8 @@ class SystemController extends BaseController
         if ($project) {
 
             if (!$month) {
-                $timeStart = $this->actionGetDate();
-                $timeEnd = $this->actionGetDate(1);
+                $timeStart = $this->getDate();
+                $timeEnd = $this->getDate(1);
             } else {
                 $date = new \DateTime();
                 $timeStart = $date->format('Y-'.$month.'-01 00:00:00');
@@ -174,6 +172,8 @@ class SystemController extends BaseController
             $this->formatJson();
             return $data;
         }
+
+        return 0;
     }
 
 
