@@ -11,6 +11,8 @@ namespace app\controllers;
 
 use app\controllers\base\BaseController;
 use app\models\User;
+use app\models\WorkLog;
+use GuzzleHttp\Client;
 use yii\db\Query;
 use yii\web\HttpException;
 
@@ -32,8 +34,8 @@ class SystemController extends BaseController
     public function actionGetDate($end = false)
     {
 
-        $timeStart = \Yii::$app->request->get('timeStart');
-        $timeEnd = \Yii::$app->request->get('timeEnd');
+        $timeStart = \Yii::$app->request->post('timeStart',false);
+        $timeEnd = \Yii::$app->request->post('timeEnd',false);
 
         $timeStart = is_null($timeStart) ? false :$timeStart;
         $timeEnd = is_null($timeEnd) ? false :$timeEnd;
@@ -174,6 +176,81 @@ class SystemController extends BaseController
             $this->formatJson();
             return $data;
         }
+    }
+
+    public function actionGetFullLogs($user_id)
+    {
+        $project = \Yii::$app->request->post('project',false);
+        $task = \Yii::$app->request->post('task',false);
+        $type = \Yii::$app->request->post('type',false);
+        $month = \Yii::$app->request->post('month',false);
+
+
+        if (\Yii::$app->user->id != $user_id && \Yii::$app->user->identity->isAdmin()) {
+            exit;
+        }
+
+        if (!$type) {
+
+            $timeStart = $this->actionGetDate();
+            $timeEnd = $this->actionGetDate(1);
+
+        } elseif ($type == 'day') {
+
+            $date = new \DateTime();
+            $timeStart = $date->format('Y-'.$month.'-01 00:00:00');
+            $timeEnd = $date->format('Y-'.$month.'-31 23:59:00');
+        }
+
+        if(isset($timeStart) && isset($timeEnd))
+        {
+
+            $query = new Query();
+
+            if(!$type)
+                $query->select(['LAST_VALUE(id) OVER (PARTITION BY DATE_FORMAT(dateTime, \'%y%m%d%H\') ORDER BY dateTime DESC)']);
+            else
+                $query->select(['LAST_VALUE(id) OVER (PARTITION BY DATE_FORMAT(dateTime, \'%y%m%d\') ORDER BY dateTime DESC)']);
+
+            $query->addSelect(['id, user_id, COUNT(id) as count, SUM(activityIndex) as ai,
+                        MIN(dateTime) as tstart, MAX(dateTime) as tend,screenshot,screenshot_preview']);
+            $query->from('work_log');
+
+            $query->where(['user_id' => $user_id])
+                ->andWhere('dateTime BETWEEN :start AND :end',['start'=>$timeStart,'end'=>$timeEnd]);
+
+            if($project)
+                $query->andWhere(['issueKey LIKE :project'],['project'=>$project.'%']);
+
+            if($project)
+                $query->andWhere(['issueKey LIKE :task'],['task'=>$task]);
+
+            $date = $query->all();
+            $this->formatJson();
+            return $date;
+        }
+
+    }
+
+    public function actionLoadCitrus()
+    {
+        $client = new Client();
+
+        $t_log = [];
+        for ($i = 0;$i<100;$i++)
+        {
+            $log = '['.$i.'] ';
+            $t = time();
+            $req = $client->request('GET','http://new-desktop.citrus.ua/api/main-page/rubrics/gift-ideas',
+                ['auth'=>['admin','tzBYSW6alR']]);
+            $log .= time()-$t.' ';
+            $log .= $req->getStatusCode().' ';
+            $t_log[$i] = $log;
+        }
+
+        $this->formatJson();
+        return $t_log;
+
     }
 
 

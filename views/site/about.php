@@ -8,14 +8,13 @@ $this->title = 'About';
 $this->params['breadcrumbs'][] = $this->title;
 $this->registerJs('$(\'#test\').on(\'click\',function () {
         $.ajax({
-            url:\'/system/get-tasks\',
+            url:\'/system/get-full-logs\'+"?user_id=8",
             method:"post",
             data:{
                 "uid":[1],
                 "month":10,
-                "timeStart":"2017-10-09 10:00:00",
-                "timeEnd":"2017-10-09 10:00:00",
-                "project":"VZP"
+                "timeStart":"09/10/2017",
+                "timeEnd":"09/10/2017"
             }
         })
     });',\yii\web\View::POS_LOAD);
