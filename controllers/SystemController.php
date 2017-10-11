@@ -192,8 +192,8 @@ class SystemController extends BaseController
 
         if (!$type) {
 
-            $timeStart = $this->actionGetDate();
-            $timeEnd = $this->actionGetDate(1);
+            $timeStart = $this->getDate();
+            $timeEnd = $this->getDate(1);
 
         } elseif ($type == 'day') {
 
