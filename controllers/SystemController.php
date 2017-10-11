@@ -101,7 +101,9 @@ class SystemController extends BaseController
         throw new HttpException(403);
     }
 
-
+    /**
+     * @return array|int
+     */
     public function actionGetProjects()
     {
         $uid = \Yii::$app->request->post('uid',false);
@@ -135,6 +137,43 @@ class SystemController extends BaseController
         }
 
         return 0;
+    }
+
+    /**
+     * @return array
+     */
+    public function actionGetTasks()
+    {
+        $uid = \Yii::$app->request->post('uid',false);
+        $project = \Yii::$app->request->post('project',false);
+        $month = \Yii::$app->request->post('month',false);
+
+        if(!\Yii::$app->user->identity->isAdmin())
+            $uid = array(\Yii::$app->user->id);
+
+        if ($project) {
+
+            if (!$month) {
+                $timeStart = $this->actionGetDate();
+                $timeEnd = $this->actionGetDate(1);
+            } else {
+                $date = new \DateTime();
+                $timeStart = $date->format('Y-'.$month.'-01 00:00:00');
+                $timeEnd = $date->format('Y-'.$month.'-31 23:59:00');
+            }
+
+            $in  = implode(',',$uid);
+            $query = new Query();
+            $data = $query->select(["DISTINCT `issueKey` AS task"])
+                ->from('work_log')->where('user_id IN ('.$in.')')
+                ->andWhere('dateTime BETWEEN "'.$timeStart.'" AND "'.$timeEnd.'"')
+                ->andWhere('issueKey LIKE :project')->params(['project'=>$project.'%'])
+                ->orderBy('task')
+                ->all();
+
+            $this->formatJson();
+            return $data;
+        }
     }
 
 
