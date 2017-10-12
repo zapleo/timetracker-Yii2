@@ -8,7 +8,7 @@
 
 namespace app\controllers;
 
-
+use app\components\helpers\SimpleImage;
 use app\controllers\base\BaseController;
 use app\models\User;
 use app\models\WorkLog;
@@ -42,21 +42,51 @@ class SystemController extends BaseController
 
         if (!$end) {
 
-            $timeStart = \DateTime::createFromFormat('d/m/Y', $timeStart)->format('Y-m-d 00:00:00');
+            $timeStart = \DateTime::createFromFormat('d/m/Y H:i:s', $timeStart)->format('Y-m-d 00:00:00');
 
             return $timeStart;
 
         } else {
 
             if (!$timeEnd) {
-                $timeEnd = \DateTime::createFromFormat('d/m/Y', $timeStart)->format('Y-m-d 23:59:00');
+                $timeEnd = \DateTime::createFromFormat('d/m/Y H:i:s', $timeStart)->format('Y-m-d 23:59:00');
             } else {
-                $timeEnd = \DateTime::createFromFormat('d/m/Y', $timeEnd)->format('Y-m-d 23:59:00');
+                $timeEnd = \DateTime::createFromFormat('d/m/Y H:i:s', $timeEnd)->format('Y-m-d 23:59:00');
             }
 
             return $timeEnd;
 
         }
+    }
+
+
+    private function generatePreview($item)
+    {
+        $path = \Yii::$app->basePath."/web";
+        $preview_name = $path.'/preview_screenshots/' . date('Y/m/d').'/'.$item['id'].'.jpg';
+        if (file_exists($path.'/screenshots/' . $item['screenshot'])) {
+
+            if (!is_dir($path.'/preview_screenshots/' . date('Y/m/d')))
+                mkdir($path.'/preview_screenshots/' . date('Y/m/d'), 0777, true);
+
+            $image = new SimpleImage();
+            $image->load($path.'/screenshots/' . $item['screenshot']);
+            $image->resizeToHeight(156);
+
+            if ($image->getWidth() > 280)
+                $image->crop(280, 156);
+
+            $item['preview_screenshots'] = date('Y/m/d').'/'.$item['id'].'.jpg';
+            $image->save($preview_name);
+
+            imagedestroy($image);
+
+            if (file_exists($preview_name)) {
+                return $item['preview_screenshots'];
+            }
+
+        }
+        return false;
     }
 
     /**
@@ -209,8 +239,7 @@ class SystemController extends BaseController
                 \Yii::$app->request->post('timeEnd',false))->format('Y-m-d H:59:59');
         }
 
-        if(isset($timeStart) && isset($timeEnd))
-        {
+        if(isset($timeStart) && isset($timeEnd)) {
             $query = new Query();
             $query->addSelect(['SUBSTRING_INDEX(GROUP_CONCAT(CAST(id AS CHAR) ORDER BY dateTime DESC), \',\', 1 ) as id,
              SUBSTRING_INDEX(GROUP_CONCAT(CAST(user_id AS CHAR) ORDER BY dateTime DESC), \',\', 1 ) as user_id,
@@ -220,27 +249,49 @@ class SystemController extends BaseController
              MIN(dateTime) as tstart, MAX(dateTime) as tend,
              SUM(CASE WHEN workTime = 1 THEN 1 ELSE 0 END) workCount,
              SUM(CASE WHEN workTime = 0 THEN 1 ELSE 0 END) noWorkCount']);
-            if(!$type)
+            if (!$type)
                 $query->groupBy([' DATE_FORMAT(dateTime, \'%y%m%d%H\')']);
-            elseif($type=='hour')
+            elseif ($type == 'hour')
                 $query->groupBy(['dateTime']);
-                else
-                    $query->groupBy([' DATE_FORMAT(dateTime, \'%y%m%d\')']);
+            else
+                $query->groupBy([' DATE_FORMAT(dateTime, \'%y%m%d\')']);
 
             $query->from('work_log');
 
             $query->where(['user_id' => $user_id])
-                ->andWhere('dateTime BETWEEN :start AND :end',['start'=>$timeStart,'end'=>$timeEnd]);
+                ->andWhere('dateTime BETWEEN :start AND :end', ['start' => $timeStart, 'end' => $timeEnd]);
 
-            if($project)
-                $query->andWhere(['issueKey LIKE :project'],['project'=>$project.'%']);
+            if ($project)
+                $query->andWhere(['issueKey LIKE :project'], ['project' => $project . '%']);
 
-            if($task)
-                $query->andWhere(['issueKey LIKE :task'],['task'=>$task]);
+            if ($task)
+                $query->andWhere(['issueKey LIKE :task'], ['task' => $task]);
 
-            $date = $query->all();
+            $data = $query->all();
+
+            foreach ($data as $k=>$item)
+            {
+                if($item['count']>1 || is_null($item['screenshot_preview']))
+                {
+                    $log = WorkLog::findOne($item['id']);
+                    if(!is_null($log))
+                        if(is_null($log->screenshot_preview))
+                        {
+                            $img = $this->generatePreview($item);
+                            if($img)
+                            {
+                                $log->screenshot_preview = $img;
+                                $log->save();
+                                $data[$k]['screenshot_preview']=$img;
+                            }
+
+                        }
+
+                }
+
+            }
             $this->formatJson();
-            return $date;
+            return $data;
         }
 
     }
