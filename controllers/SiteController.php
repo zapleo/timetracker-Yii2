@@ -25,7 +25,7 @@ class SiteController extends Controller
 //                'only' => ['logout'],
                 'rules' => [
                     [
-                        'actions' => ['logout','index','error'],
+                        'actions' => ['logout','index','error','about'],
                         'allow' => true,
                         'roles' => ['@'],
                     ],
@@ -131,5 +131,10 @@ class SiteController extends Controller
         Yii::$app->user->logout();
 
         return $this->goHome();
+    }
+
+    public function actionAbout()
+    {
+        return $this->render('about');
     }
 }

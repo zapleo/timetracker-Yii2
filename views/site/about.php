@@ -13,8 +13,9 @@ $this->registerJs('$(\'#test\').on(\'click\',function () {
             data:{
                 "uid":[1],
                 "month":10,
-                "timeStart":"09/10/2017",
-                "timeEnd":"09/10/2017"
+                "timeStart":"09/10/2017 11:00:00",
+                "timeEnd":"09/10/2017  11:00:00",
+                "type":"hour"
             }
         })
     });',\yii\web\View::POS_LOAD);

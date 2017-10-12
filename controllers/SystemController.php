@@ -178,6 +178,10 @@ class SystemController extends BaseController
         return 0;
     }
 
+    /**
+     * @param $user_id
+     * @return array|\DateTime
+     */
     public function actionGetFullLogs($user_id)
     {
         $project = \Yii::$app->request->post('project',false);
@@ -185,35 +189,42 @@ class SystemController extends BaseController
         $type = \Yii::$app->request->post('type',false);
         $month = \Yii::$app->request->post('month',false);
 
-
         if (\Yii::$app->user->id != $user_id && \Yii::$app->user->identity->isAdmin()) {
             exit;
         }
 
         if (!$type) {
-
             $timeStart = $this->getDate();
             $timeEnd = $this->getDate(1);
-
         } elseif ($type == 'day') {
-
             $date = new \DateTime();
             $timeStart = $date->format('Y-'.$month.'-01 00:00:00');
             $timeEnd = $date->format('Y-'.$month.'-31 23:59:00');
         }
+        else
+        {
+            $timeStart =  \DateTime::createFromFormat('d/m/Y H:i:s',
+                \Yii::$app->request->post('timeStart',false))->format('Y-m-d H:00:00');
+            $timeEnd = \DateTime::createFromFormat('d/m/Y H:i:s',
+                \Yii::$app->request->post('timeEnd',false))->format('Y-m-d H:59:59');
+        }
 
         if(isset($timeStart) && isset($timeEnd))
         {
-
             $query = new Query();
-
+            $query->addSelect(['SUBSTRING_INDEX(GROUP_CONCAT(CAST(id AS CHAR) ORDER BY dateTime DESC), \',\', 1 ) as id,
+             SUBSTRING_INDEX(GROUP_CONCAT(CAST(user_id AS CHAR) ORDER BY dateTime DESC), \',\', 1 ) as user_id,
+             SUBSTRING_INDEX(GROUP_CONCAT(CAST(screenshot AS CHAR) ORDER BY dateTime DESC), \',\', 1 ) as screenshot,
+             SUBSTRING_INDEX(GROUP_CONCAT(CAST(screenshot_preview AS CHAR) ORDER BY dateTime DESC), \',\', 1 ) as screenshot_preview,
+             COUNT(id) as count, SUM(activityIndex) as ai,
+             MIN(dateTime) as tstart, MAX(dateTime) as tend,
+             SUM(CASE WHEN workTime = 1 THEN 1 ELSE 0 END) workCount,
+             SUM(CASE WHEN workTime = 0 THEN 1 ELSE 0 END) noWorkCount']);
             if(!$type)
-                $query->select(['LAST_VALUE(id) OVER (PARTITION BY DATE_FORMAT(dateTime, \'%y%m%d%H\') ORDER BY dateTime DESC)']);
+                $query->groupBy([' DATE_FORMAT(dateTime, \'%y%m%d%H\')']);
             else
-                $query->select(['LAST_VALUE(id) OVER (PARTITION BY DATE_FORMAT(dateTime, \'%y%m%d\') ORDER BY dateTime DESC)']);
+                $query->groupBy([' DATE_FORMAT(dateTime, \'%y%m%d\')']);
 
-            $query->addSelect(['id, user_id, COUNT(id) as count, SUM(activityIndex) as ai,
-                        MIN(dateTime) as tstart, MAX(dateTime) as tend,screenshot,screenshot_preview']);
             $query->from('work_log');
 
             $query->where(['user_id' => $user_id])
@@ -232,26 +243,37 @@ class SystemController extends BaseController
 
     }
 
-    public function actionLoadCitrus()
+    public function actionGetWorkLogById($id)
     {
-        $client = new Client();
-
-        $t_log = [];
-        for ($i = 0;$i<100;$i++)
-        {
-            $log = '['.$i.'] ';
-            $t = time();
-            $req = $client->request('GET','http://new-desktop.citrus.ua/api/main-page/rubrics/gift-ideas',
-                ['auth'=>['admin','tzBYSW6alR']]);
-            $log .= time()-$t.' ';
-            $log .= $req->getStatusCode().' ';
-            $t_log[$i] = $log;
-        }
-
         $this->formatJson();
-        return $t_log;
+        if(\Yii::$app->user->identity->isAdmin())
+            $data = WorkLog::findOne(['id'=>$id]);
+        else
+            $data = WorkLog::findOne(['id'=>$id,'user_id'=>\Yii::$app->user->id]);
+        $this->formatJson();
 
+        return is_null($data)?$data:$data->toArray();
     }
 
+//    public function actionLoadCitrus()
+//    {
+//        $client = new Client();
+//
+//        $t_log = [];
+//        for ($i = 0;$i<100;$i++)
+//        {
+//            $log = '['.$i.'] ';
+//            $t = time();
+//            $req = $client->request('GET','http://new-desktop.citrus.ua/api/main-page/rubrics/gift-ideas',
+//                ['auth'=>['admin','tzBYSW6alR']]);
+//            $log .= time()-$t.' ';
+//            $log .= $req->getStatusCode().' ';
+//            $t_log[$i] = $log;
+//        }
+//
+//        $this->formatJson();
+//        return $t_log;
+//
+//    }
 
 }
