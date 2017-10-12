@@ -222,8 +222,10 @@ class SystemController extends BaseController
              SUM(CASE WHEN workTime = 0 THEN 1 ELSE 0 END) noWorkCount']);
             if(!$type)
                 $query->groupBy([' DATE_FORMAT(dateTime, \'%y%m%d%H\')']);
-            else
-                $query->groupBy([' DATE_FORMAT(dateTime, \'%y%m%d\')']);
+            elseif($type=='hour')
+                $query->groupBy(['dateTime']);
+                else
+                    $query->groupBy([' DATE_FORMAT(dateTime, \'%y%m%d\')']);
 
             $query->from('work_log');
 
@@ -233,7 +235,7 @@ class SystemController extends BaseController
             if($project)
                 $query->andWhere(['issueKey LIKE :project'],['project'=>$project.'%']);
 
-            if($project)
+            if($task)
                 $query->andWhere(['issueKey LIKE :task'],['task'=>$task]);
 
             $date = $query->all();
