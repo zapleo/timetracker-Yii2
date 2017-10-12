@@ -29,6 +29,6 @@ $this->registerJsFile('@web/js/main.js', ['depends' => 'app\assets\AppAsset']);
     </div>
 </div>
 
-<div class="work-logs">
+<div class="work-logs"></div>
 
-</div>
+<?= $this->render('modal') ?>

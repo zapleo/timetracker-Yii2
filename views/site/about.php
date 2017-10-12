@@ -8,7 +8,7 @@ $this->title = 'About';
 $this->params['breadcrumbs'][] = $this->title;
 $this->registerJs('$(\'#test\').on(\'click\',function () {
         $.ajax({
-            url:\'/system/get-full-logs\'+"?user_id=8",
+            url:\'/system/get-full-logs\'+"?user_id=1",
             method:"post",
             data:{
                 "uid":[1],

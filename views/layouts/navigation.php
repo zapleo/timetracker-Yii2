@@ -54,16 +54,18 @@
                                 <select id="task" class="selectpicker hide">
                                 </select>
 
-                                <div class="btn-group navbar-right">
+                                <?php if (Yii::$app->user->identity->isAdmin()): ?>
+                                    <div class="btn-group navbar-right">
 
-                                    <div class="btn-group-btn">
-                                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                                                Users List <span class="caret"></span>
-                                        </button>
-                                        <ul class="dropdown-menu pull-right" id="users-list">
-                                        </ul>
-                                    </div><!-- /btn-group -->
-                                </div><!-- /input-group -->
+                                        <div class="btn-group-btn">
+                                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                                    Users List <span class="caret"></span>
+                                            </button>
+                                            <ul class="dropdown-menu pull-right" id="users-list">
+                                            </ul>
+                                        </div><!-- /btn-group -->
+                                    </div><!-- /input-group -->
+                                <?php endif; ?>
 
 
                             </form>

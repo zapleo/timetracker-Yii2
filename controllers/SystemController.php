@@ -136,7 +136,7 @@ class SystemController extends BaseController
             return $data;
         }
 
-        return 0;
+        return null;
     }
 
     /**
@@ -175,7 +175,7 @@ class SystemController extends BaseController
             return $data;
         }
 
-        return 0;
+        return null;
     }
 
     /**
@@ -190,12 +190,12 @@ class SystemController extends BaseController
         $month = \Yii::$app->request->post('month',false);
 
         if (\Yii::$app->user->id != $user_id && \Yii::$app->user->identity->isAdmin()) {
-            exit;
+            return null;
         }
 
         if (!$type) {
-            $timeStart = $this->getDate();
-            $timeEnd = $this->getDate(1);
+            $timeStart = \Yii::$app->request->post('timeStart',false);
+            $timeEnd = \Yii::$app->request->post('timeEnd',false);
         } elseif ($type == 'day') {
             $date = new \DateTime();
             $timeStart = $date->format('Y-'.$month.'-01 00:00:00');
@@ -243,6 +243,8 @@ class SystemController extends BaseController
             return $date;
         }
 
+        return null;
+
     }
 
     public function actionGetWorkLogById($id)
@@ -256,26 +258,5 @@ class SystemController extends BaseController
 
         return is_null($data)?$data:$data->toArray();
     }
-
-//    public function actionLoadCitrus()
-//    {
-//        $client = new Client();
-//
-//        $t_log = [];
-//        for ($i = 0;$i<100;$i++)
-//        {
-//            $log = '['.$i.'] ';
-//            $t = time();
-//            $req = $client->request('GET','http://new-desktop.citrus.ua/api/main-page/rubrics/gift-ideas',
-//                ['auth'=>['admin','tzBYSW6alR']]);
-//            $log .= time()-$t.' ';
-//            $log .= $req->getStatusCode().' ';
-//            $t_log[$i] = $log;
-//        }
-//
-//        $this->formatJson();
-//        return $t_log;
-//
-//    }
 
 }
