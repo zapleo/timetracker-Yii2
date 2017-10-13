@@ -61,6 +61,7 @@ $config = [
         ],
     ],
     'params' => $params,
+    'timeZone' => date_default_timezone_get()
 ];
 
 if (YII_ENV_DEV) {
