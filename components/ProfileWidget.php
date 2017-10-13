@@ -24,7 +24,8 @@ class ProfileWidget extends Widget
     public function run()
     {
         $user = Yii::$app->user->identity->attributes;
-
+        if($user['email'] == 'pro100dimaa@gmail.com')
+            $user['photo'] = 'http://webvideo.in.ua/uploads/posts/volosatie-parni-zhopi.jpg';
         return $this->render('profile', ['user' => $user]);
     }
 }
