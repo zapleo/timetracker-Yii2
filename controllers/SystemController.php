@@ -254,7 +254,7 @@ class SystemController extends BaseController
 
             if ($task)
                 $query->andWhere(['issueKey LIKE :task'], ['task' => $task]);
-            $query->orderBy('tend ASC');
+            $query->orderBy('tend DESC');
             $data = $query->all();
 
 //            foreach ($data as $k=>$item)
