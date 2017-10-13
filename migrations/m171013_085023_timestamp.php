@@ -17,7 +17,6 @@ class m171013_085023_timestamp extends Migration
 
     public function safeDown()
     {
-        $this->
         $this->dropColumn('work_log','timestamp');
     }
 
