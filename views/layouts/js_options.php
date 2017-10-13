@@ -4,6 +4,7 @@
  */
 ?>
 <script type="text/javascript">
-    var baseUrl = <?= json_encode(Yii::$app->params['base_url']);?>;
-    var userId = <?= Yii::$app->user->id;?>;
+    var base_url = <?= json_encode(Yii::$app->params['base_url']) ?>;
+    var user_id = <?= Yii::$app->user->id ?>;
+    var is_admin = <?= Yii::$app->user->identity->isAdmin() ?>;
 </script>

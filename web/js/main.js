@@ -1,21 +1,16 @@
-var USER_ID = 1;
-var IS_ADMIN = 0;
-var DOMAIN = 'http://tracker.com/';
-
 var months_obj = {
-    'Nothing selected': 0,
-    'January': '01',
-    'February': '02',
-    'March': '03',
-    'April': '04',
-    'May': '05',
-    'June': '06',
-    'July': '07',
-    'August': '08',
-    'September': '09',
-    'October': '10',
-    'November': '11',
-    'December': '12'
+    'January': 0,
+    'February': 1,
+    'March': 2,
+    'April': 3,
+    'May': 4,
+    'June': 5,
+    'July': 6,
+    'August': 7,
+    'September': 8,
+    'October': 9,
+    'November': 10,
+    'December': 11
 };
 
 function getWorkLogsTemplate(user_id) {
@@ -35,7 +30,7 @@ function getWorkLogsTemplate(user_id) {
 function getUsersList()
 {
     $.ajax({
-        url: '/system/get-users-list',
+        url: base_url + '/system/get-users-list',
         dataType: 'json',
         data: {},
         success: function (users) {
@@ -46,7 +41,7 @@ function getUsersList()
             {
                 users_list += '<li id="user'+users[i].id+'">';
                 users_list += '<div class="checkbox"><label>';
-                users_list += '<input type="checkbox" ' + (!IS_ADMIN ? 'checked="checked"' : '') + ' id="user" value="' + users[i].id + '"> ' +
+                users_list += '<input type="checkbox" ' + (localStorage['user'+users[i].id] == users[i].id ? 'checked="checked"' : '') + ' id="user" value="' + users[i].id + '"> ' +
                     users[i].first_name + ' ' + users[i].last_name;
                 users_list += '</label></div>';
                 users_list += '</li>';
@@ -73,7 +68,7 @@ function getUsersList()
 function getUserInfo(id)
 {
     $.ajax({
-        url: '/system/get-user-info?id=' + id,
+        url: base_url + '/system/get-user-info?id=' + id,
         dataType: 'json',
         data: {},
         success: function (user) {
@@ -117,7 +112,7 @@ function getProjects(dt_start, project, month)
     var dt_end = 0;
     var uid_arr = [];
 
-    if (IS_ADMIN) {
+    if (is_admin) {
 
         for (i = 0; i < localStorage.length; i++) {
 
@@ -138,13 +133,13 @@ function getProjects(dt_start, project, month)
     }
 
     $.ajax({
-        url: DOMAIN + 'ajax/ajax.php?action=getProjects',
+        url: base_url + 'ajax/ajax.php?action=getProjects',
         dataType: 'json',
         type: 'POST',
         data: {
             'dt_start': dt_start,
             'dt_end': dt_end,
-            'uid': (IS_ADMIN ? uid_arr : 0),
+            'uid': (is_admin ? uid_arr : 0),
             'month': month
         },
         success: function (res) {
@@ -177,7 +172,7 @@ function getTasks(dt_start, project, task, month)
     var dt_end = 0;
     var uid_arr = [];
 
-    if (IS_ADMIN) {
+    if (is_admin) {
 
         for (i = 0; i < localStorage.length; i++) {
 
@@ -198,14 +193,14 @@ function getTasks(dt_start, project, task, month)
     if (project && project != 'All project') {
 
         $.ajax({
-            url: DOMAIN + 'ajax/ajax.php?action=getTasks',
+            url: base_url + 'ajax/ajax.php?action=getTasks',
             dataType: 'json',
             type: 'POST',
             data: {
                 'dt_start': dt_start,
                 'dt_end': dt_end,
                 'project': project,
-                'uid': (IS_ADMIN ? uid_arr : 0),
+                'uid': (is_admin ? uid_arr : 0),
                 'month': month
             },
             success: function (res) {
@@ -260,7 +255,7 @@ function getWorkLogs(user_id, dt_start, dt_end, type, project, task)
     var empty = $('ul#users-list li input#user_all_empty').prop('checked');
 
     $.ajax({
-        url: '/system/get-full-logs?user_id=' + user_id,
+        url: base_url + '/system/get-full-logs?user_id=' + user_id,
         dataType: 'json',
         type: 'POST',
         data: {
@@ -298,9 +293,9 @@ function getWorkLogs(user_id, dt_start, dt_end, type, project, task)
                     no_work_count += parseInt(logs[i].no_work_count);
 
                     if (logs[i].tstart == logs[i].tend) {
-                        time = moment(logs[i].tstart, 'X').format('Y-M-D HH:mm:ss');
+                        time = moment(logs[i].tstart, 'X').format('Y-MM-DD HH:mm:ss');
                     } else {
-                        time = moment(logs[i].tstart, 'X').format('Y-M-D HH:mm:ss') + ' - ' + moment(logs[i].tend, 'X').format('HH:mm:ss');
+                        time = moment(logs[i].tstart, 'X').format('Y-MM-DD HH:mm:ss') + ' - ' + moment(logs[i].tend, 'X').format('HH:mm:ss');
                     }
 
                     work_logs += '<div class="screen">';
@@ -329,7 +324,7 @@ function getWorkLogs(user_id, dt_start, dt_end, type, project, task)
             $('div#logs' + user_id).empty().append(work_logs);
 
             // $('img').one('error', function() {
-            //     this.src = DOMAIN + 'img/default.png';
+            //     this.src = base_url + 'img/default.png';
             // });
 
             $('.mcs-horizontal').mCustomScrollbar({
@@ -352,36 +347,33 @@ function getWorkLogs(user_id, dt_start, dt_end, type, project, task)
 
 }
 
-function load_logs(date_start, date_end)
+function load_logs(date_start, date_end, type)
 {
     if (date_end == undefined)
         date_end = null;
 
-    var datetime_start = moment(date_start, 'D/M/Y').format('Y-M-D 00:00:00');
-    var datetime_end = moment((date_end == null ? date_start : date_end), 'D/M/Y').format('Y-M-D 23:59:00');
+    var datetime_start = moment(date_start, 'D/M/Y').hours(0).minutes(0).seconds(0).format('X');
+    var datetime_end = moment((date_end == null ? date_start : date_end), 'D/M/Y').hours(23).minutes(59).seconds(59).format('X');
 
     for (i = 0; i < localStorage.length; i++) {
         if (localStorage.key(i).startsWith('user')) {
             var id = localStorage[localStorage.key(i)];
 
-            getWorkLogs(id, datetime_start, datetime_end);
+            getWorkLogs(id, datetime_start, datetime_end, type);
         }
     }
 }
 
 function init()
 {
-    if (IS_ADMIN)
+    if (is_admin)
         getUsersList();
 
-    var datetime_start = moment().format('X');
-    var datetime_end = moment().add(1, 'days').format('X');
+    var datetime_start = moment().hours(0).minutes(0).seconds(0).format('X');
+    var datetime_end = moment().hours(23).minutes(59).seconds(59).format('X');
 
     for (i = 0; i < localStorage.length; i++) {
         if (localStorage.key(i).startsWith('user')) {
-            if (IS_ADMIN)
-                $('ul#users-list li#user' + uid).find('input').prop('checked', true);
-
             var id = localStorage[localStorage.key(i)];
 
             getWorkLogsTemplate(id);
@@ -393,8 +385,8 @@ function init()
 }
 
 $(document).ready(function(){
-    if (!IS_ADMIN && !localStorage['user'+USER_ID])
-        localStorage['user'+USER_ID] = USER_ID;
+    if (!is_admin && !localStorage['user'+user_id])
+        localStorage['user'+user_id] = user_id;
 
     // Start initialization
     init();
@@ -432,15 +424,13 @@ $(document).ready(function(){
 
     // select months
     $('#months').on('changed.bs.select', function (e) {
-        // TODO: month
-        var month = e.target.value;
+        var month = months_obj[e.target.value];
+        var date_start = moment($('input#datepicker-start').val(), 'D/M/Y').month(month);
 
-        if (months_obj[month] == (today.getMonth() + 1)) {
-            var day = (today.getDate() < 10 ? '0' + today.getDate() : today.getDate());
-            $('#datepicker-start, #datepicker-end').val(day + '/' + months_obj[month] + '/' + today.getFullYear());
-        } else {
-            $('#datepicker-start, #datepicker-end').val('01/' + months_obj[month] + '/' + today.getFullYear());
-        }
+        $('#datepicker-start').val(date_start.date(1).format('DD/MM/Y'));
+        $('#datepicker-end').val(date_start.endOf('month').format('DD/MM/Y'));
+
+        load_logs($('input#datepicker-start').val(), $('input#datepicker-end').val(), 'day');
     });
     // end
 
@@ -458,7 +448,7 @@ $(document).ready(function(){
         $('ul#users-list li input#user_all').prop('checked', false);
 
         $('#months').selectpicker('val', 'Nothing selected');
-        load_logs(date_start);
+        load_logs(date_start, null, 'hour');
         
         $('#task').empty();
         $('#task').selectpicker('refresh');
@@ -473,9 +463,13 @@ $(document).ready(function(){
     });
 
     $('#datepicker-end').on('dp.hide', function(e){
+        var date_start = $('input#datepicker-start').val();
+        var date_end = $('input#datepicker-end').val();
+
         $('ul#users-list li input#user_all').prop('checked', false);
 
         $('#months').selectpicker('val', 'Nothing selected');
+        load_logs(date_start, date_end, 'hour');
         
         $('#task').empty();
         $('#task').selectpicker('refresh');
