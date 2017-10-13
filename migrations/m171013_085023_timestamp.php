@@ -8,16 +8,19 @@ class m171013_085023_timestamp extends Migration
     {
         $this->addColumn('work_log','timestamp','BIGINT');
         $logs = \app\models\WorkLog::find()->all();
+
+        echo date_default_timezone_get().PHP_EOL;
+
         foreach ($logs as $log)
         {
             $log->timestamp = (new DateTime($log->dateTime))->getTimestamp();
             $log->save();
+            echo $log->id.PHP_EOL;
         }
     }
 
     public function safeDown()
     {
-        $this->
         $this->dropColumn('work_log','timestamp');
     }
 

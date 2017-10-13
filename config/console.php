@@ -23,6 +23,7 @@ $config = [
         'db' => $db,
     ],
     'params' => $params,
+    'timeZone' => date_default_timezone_get()
     /*
     'controllerMap' => [
         'fixture' => [ // Fixture generation command line.
