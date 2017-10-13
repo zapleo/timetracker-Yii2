@@ -152,7 +152,7 @@ class SystemController extends BaseController
             $query = new Query();
             $data = $query->select(["DISTINCT SUBSTRING_INDEX(issueKey, '-', 1 ) AS project"])
                 ->from('work_log')->where('user_id IN ('.$in.')')
-                ->andWhere('dateTime BETWEEN "'.$timeStart.'" AND "'.$timeEnd.'"')->orderBy('project')
+                ->andWhere('timestamp BETWEEN :start AND :end', ['start' => $timeStart, 'end' => $timeEnd])->orderBy('project')
                 ->all();
 
             $this->formatJson();
@@ -183,7 +183,7 @@ class SystemController extends BaseController
             $query = new Query();
             $data = $query->select(["DISTINCT `issueKey` AS task"])
                 ->from('work_log')->where('user_id IN ('.$in.')')
-                ->andWhere('dateTime BETWEEN "'.$timeStart.'" AND "'.$timeEnd.'"')
+                ->andWhere('timestamp BETWEEN :start AND :end', ['start' => $timeStart, 'end' => $timeEnd])
                 ->andWhere('issueKey LIKE :project')->params(['project'=>$project.'%'])
                 ->orderBy('task')
                 ->all();
