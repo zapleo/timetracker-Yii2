@@ -233,8 +233,9 @@ class SystemController extends BaseController
 
             $query->from('work_log');
 
-            $query->where(['user_id' => $user_id])
-                ->andWhere('timestamp BETWEEN :start AND :end', ['start' => $timeStart, 'end' => $timeEnd]);
+            $query->where(['user_id' => $user_id]);
+            if($timeStart && $timeEnd)
+                $query->andWhere('timestamp BETWEEN :start AND :end', ['start' => $timeStart, 'end' => $timeEnd]);
 
             if ($project)
                 $query->andWhere(['issueKey LIKE :project'], ['project' => $project . '%']);
