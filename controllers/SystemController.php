@@ -223,43 +223,32 @@ class SystemController extends BaseController
             return null;
         }
 
-        if (!$type) {
-            $timeStart = \Yii::$app->request->post('timeStart',false);
-            $timeEnd = \Yii::$app->request->post('timeEnd',false);
-        } elseif ($type == 'day') {
-            $date = new \DateTime();
-            $timeStart = $date->format('Y-'.$month.'-01 00:00:00');
-            $timeEnd = $date->format('Y-'.$month.'-31 23:59:00');
-        }
-        else
-        {
-            $timeStart =  \DateTime::createFromFormat('d/m/Y H:i:s',
-                \Yii::$app->request->post('timeStart',false))->format('Y-m-d H:00:00');
-            $timeEnd = \DateTime::createFromFormat('d/m/Y H:i:s',
-                \Yii::$app->request->post('timeEnd',false))->format('Y-m-d H:59:59');
-        }
+        $timeStart = \Yii::$app->request->post('timeStart',false);
+        $timeEnd = \Yii::$app->request->post('timeEnd',false);
 
         if(isset($timeStart) && isset($timeEnd)) {
             $query = new Query();
-            $query->addSelect(['SUBSTRING_INDEX(GROUP_CONCAT(CAST(id AS CHAR) ORDER BY dateTime DESC), \',\', 1 ) as id,
-             SUBSTRING_INDEX(GROUP_CONCAT(CAST(user_id AS CHAR) ORDER BY dateTime DESC), \',\', 1 ) as user_id,
-             SUBSTRING_INDEX(GROUP_CONCAT(CAST(screenshot AS CHAR) ORDER BY dateTime DESC), \',\', 1 ) as screenshot,
-             SUBSTRING_INDEX(GROUP_CONCAT(CAST(screenshot_preview AS CHAR) ORDER BY dateTime DESC), \',\', 1 ) as screenshot_preview,
+            $query->addSelect(['SUBSTRING_INDEX(GROUP_CONCAT(CAST(id AS CHAR) ORDER BY timestamp DESC), \',\', 1 ) as id,
+             SUBSTRING_INDEX(GROUP_CONCAT(CAST(user_id AS CHAR) ORDER BY timestamp DESC), \',\', 1 ) as user_id,
+             SUBSTRING_INDEX(GROUP_CONCAT(CAST(screenshot AS CHAR) ORDER BY timestamp DESC), \',\', 1 ) as screenshot,
+             SUBSTRING_INDEX(GROUP_CONCAT(CAST(screenshot_preview AS CHAR) ORDER BY timestamp DESC), \',\', 1 ) as screenshot_preview,
              COUNT(id) as count, SUM(activityIndex) as ai,
-             MIN(dateTime) as tstart, MAX(dateTime) as tend,
+             MIN(timestamp) as tstart, MAX(timestamp) as tend,
              SUM(CASE WHEN workTime = 1 THEN 1 ELSE 0 END) workCount,
              SUM(CASE WHEN workTime = 0 THEN 1 ELSE 0 END) noWorkCount']);
-            if (!$type)
-                $query->groupBy([' DATE_FORMAT(dateTime, \'%y%m%d%H\')']);
-            elseif ($type == 'hour')
-                $query->groupBy(['dateTime']);
+            if ($type == 'hour')
+                $query->groupBy([' DATE_FORMAT(FROM_UNIXTIME(timestamp), \'%y%m%d%H\')']);
+            elseif ($type == 'day')
+                $query->groupBy([' DATE_FORMAT(FROM_UNIXTIME(timestamp), \'%y%m%d\')']);
+            elseif($type == 'month')
+                $query->groupBy([' DATE_FORMAT(FROM_UNIXTIME(timestamp), \'%y%m\')']);
             else
-                $query->groupBy([' DATE_FORMAT(dateTime, \'%y%m%d\')']);
+                $query->groupBy(['timestamp']);
 
             $query->from('work_log');
 
             $query->where(['user_id' => $user_id])
-                ->andWhere('dateTime BETWEEN :start AND :end', ['start' => $timeStart, 'end' => $timeEnd]);
+                ->andWhere('timestamp BETWEEN :start AND :end', ['start' => $timeStart, 'end' => $timeEnd]);
 
             if ($project)
                 $query->andWhere(['issueKey LIKE :project'], ['project' => $project . '%']);
