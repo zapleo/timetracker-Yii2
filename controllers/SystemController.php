@@ -224,8 +224,8 @@ class SystemController extends BaseController
         }
 
         if (!$type) {
-            $timeStart = \Yii::$app->request->post('timeStart',false);
-            $timeEnd = \Yii::$app->request->post('timeEnd',false);
+            $timeStart = \Yii::$app->request->post('dt_start',false);
+            $timeEnd = \Yii::$app->request->post('dt_end',false);
         } elseif ($type == 'day') {
             $date = new \DateTime();
             $timeStart = $date->format('Y-'.$month.'-01 00:00:00');
@@ -234,9 +234,9 @@ class SystemController extends BaseController
         else
         {
             $timeStart =  \DateTime::createFromFormat('d/m/Y H:i:s',
-                \Yii::$app->request->post('timeStart',false))->format('Y-m-d H:00:00');
+                \Yii::$app->request->post('dt_start',false))->format('Y-m-d H:00:00');
             $timeEnd = \DateTime::createFromFormat('d/m/Y H:i:s',
-                \Yii::$app->request->post('timeEnd',false))->format('Y-m-d H:59:59');
+                \Yii::$app->request->post('dt_end',false))->format('Y-m-d H:59:59');
         }
 
         if(isset($timeStart) && isset($timeEnd)) {
@@ -246,9 +246,10 @@ class SystemController extends BaseController
              SUBSTRING_INDEX(GROUP_CONCAT(CAST(screenshot AS CHAR) ORDER BY dateTime DESC), \',\', 1 ) as screenshot,
              SUBSTRING_INDEX(GROUP_CONCAT(CAST(screenshot_preview AS CHAR) ORDER BY dateTime DESC), \',\', 1 ) as screenshot_preview,
              COUNT(id) as count, SUM(activityIndex) as ai,
-             MIN(dateTime) as tstart, MAX(dateTime) as tend,
-             SUM(CASE WHEN workTime = 1 THEN 1 ELSE 0 END) workCount,
-             SUM(CASE WHEN workTime = 0 THEN 1 ELSE 0 END) noWorkCount']);
+             MIN(dateTime) as dt_start, MAX(dateTime) as dt_end,
+             SUM(CASE WHEN workTime = 1 THEN 1 ELSE 0 END) work_count,
+             SUM(CASE WHEN workTime = 0 THEN 1 ELSE 0 END) no_work_count']);
+
             if (!$type)
                 $query->groupBy([' DATE_FORMAT(dateTime, \'%y%m%d%H\')']);
             elseif ($type == 'hour')
@@ -269,27 +270,27 @@ class SystemController extends BaseController
 
             $data = $query->all();
 
-            foreach ($data as $k=>$item)
-            {
-                if($item['count']>1 || is_null($item['screenshot_preview']))
-                {
-                    $log = WorkLog::findOne($item['id']);
-                    if(!is_null($log))
-                        if(is_null($log->screenshot_preview))
-                        {
-                            $img = $this->generatePreview($item);
-                            if($img)
-                            {
-                                $log->screenshot_preview = $img;
-                                $log->save();
-                                $data[$k]['screenshot_preview']=$img;
-                            }
-
-                        }
-
-                }
-
-            }
+//            foreach ($data as $k=>$item)
+//            {
+//                if($item['count']>1 || is_null($item['screenshot_preview']))
+//                {
+//                    $log = WorkLog::findOne($item['id']);
+//                    if(!is_null($log))
+//                        if(is_null($log->screenshot_preview))
+//                        {
+//                            $img = $this->generatePreview($item);
+//                            if($img)
+//                            {
+//                                $log->screenshot_preview = $img;
+//                                $log->save();
+//                                $data[$k]['screenshot_preview']=$img;
+//                            }
+//
+//                        }
+//
+//                }
+//
+//            }
             $this->formatJson();
             return $data;
         }
