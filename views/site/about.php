@@ -12,8 +12,8 @@ $this->registerJs('$(\'#test\').on(\'click\',function () {
             method:"post",
             data:{
                 "uid":[1],
-                "timeStart":"1507000000",
-                "timeEnd":"1507639800",
+                "dt_start":"1507626000",
+                "dt_end":  "1507629000",
                 "type":"day"
             }
         })
