@@ -137,21 +137,15 @@ class SystemController extends BaseController
     public function actionGetProjects()
     {
         $uid = \Yii::$app->request->post('uid',false);
-        $month = \Yii::$app->request->post('month',false);
 
         if(!\Yii::$app->user->identity->isAdmin())
             $uid = array(\Yii::$app->user->id);
 
         if ($uid) {
 
-            if (!$month) {
-                $timeStart = $this->getDate();
-                $timeEnd = $this->getDate(1);
-            } else {
-                $date = new \DateTime();
-                $timeStart = $date->format('Y-'.$month.'-01 00:00:00');
-                $timeEnd = $date->format('Y-'.$month.'-31 23:59:00');
-            }
+
+            $timeStart = \Yii::$app->request->post('dt_start',false);
+            $timeEnd =  \Yii::$app->request->post('dt_end',false);
 
             // Select user projects
             $in  = implode(',',$uid);
@@ -176,21 +170,14 @@ class SystemController extends BaseController
     {
         $uid = \Yii::$app->request->post('uid',false);
         $project = \Yii::$app->request->post('project',false);
-        $month = \Yii::$app->request->post('month',false);
 
         if(!\Yii::$app->user->identity->isAdmin())
             $uid = array(\Yii::$app->user->id);
 
         if ($project) {
 
-            if (!$month) {
-                $timeStart = $this->getDate();
-                $timeEnd = $this->getDate(1);
-            } else {
-                $date = new \DateTime();
-                $timeStart = $date->format('Y-'.$month.'-01 00:00:00');
-                $timeEnd = $date->format('Y-'.$month.'-31 23:59:00');
-            }
+            $timeStart = \Yii::$app->request->post('dt_start',false);
+            $timeEnd =  \Yii::$app->request->post('dt_end',false);
 
             $in  = implode(',',$uid);
             $query = new Query();
