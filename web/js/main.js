@@ -246,7 +246,7 @@ function getTasks(dt_start, project, task, month)
 
 }
 
-function getWorkLogs(user_id, dt_start, dt_end, project, task, type, month)
+function getWorkLogs(user_id, dt_start, dt_end, type, project, task)
 {
     // vars initialize
     if (project == 'All project' || project == 'Nothing selected' || project == undefined)
@@ -255,8 +255,6 @@ function getWorkLogs(user_id, dt_start, dt_end, project, task, type, month)
         task = null;
     if (type == undefined)
         type = null;
-    if (month == undefined)
-        month = null;
 
     var all = $('ul#users-list li input#user_all').prop('checked');
     var empty = $('ul#users-list li input#user_all_empty').prop('checked');
@@ -270,8 +268,7 @@ function getWorkLogs(user_id, dt_start, dt_end, project, task, type, month)
             'dt_end': dt_end,
             'project': project,
             'task': task,
-            'type': type,
-            'month': month
+            'type': type
         },
         success: function (logs) {
 
@@ -300,15 +297,15 @@ function getWorkLogs(user_id, dt_start, dt_end, project, task, type, month)
                     work_count += parseInt(logs[i].work_count);
                     no_work_count += parseInt(logs[i].no_work_count);
 
-                    if (logs[i].dt_start == logs[i].dt_end) {
-                        time = logs[i].dt_start;
+                    if (logs[i].tstart == logs[i].tend) {
+                        time = moment(logs[i].tstart, 'X').format('Y-M-D HH:mm:ss');
                     } else {
-                        time = logs[i].dt_start + ' - ' + logs[i].dt_end.split(' ')[1];
+                        time = moment(logs[i].tstart, 'X').format('Y-M-D HH:mm:ss') + ' - ' + moment(logs[i].tend, 'X').format('HH:mm:ss');
                     }
 
                     work_logs += '<div class="screen">';
                     work_logs += '<div class="screen-text-top">' + time + '</div>';
-                    work_logs += '<img src="/img/default.png" alt="..." height="156px" width="280px" class="img-rounded item" time="' + time + '" date="' + logs[i].dt_start + '" type="' + (month == null ? 'hour' : 'day') + '" log-id="' +
+                    work_logs += '<img src="/img/default.png" alt="..." height="156px" width="280px" class="img-rounded item" time="' + time + '" date="' + logs[i].tstart + '" type="' + type + '" log-id="' +
                         logs[i].id + '" user-id="' + logs[i].user_id +'" data-img="' + logs[i].screenshot + '">';
                     work_logs += '<div class="screen-text">';
                     work_logs += 'Activity index' + (logs[i].count > 1 ? ' ≈ ' : ' ') + '<span>' + index + '%</span>';
@@ -377,8 +374,8 @@ function init()
     if (IS_ADMIN)
         getUsersList();
 
-    var datetime_start = moment().format('Y-M-D 00:00:00');
-    var datetime_end = moment().add(1, 'days').format('Y-M-D 00:00:00');
+    var datetime_start = moment().format('X');
+    var datetime_end = moment().add(1, 'days').format('X');
 
     for (i = 0; i < localStorage.length; i++) {
         if (localStorage.key(i).startsWith('user')) {
@@ -389,7 +386,7 @@ function init()
 
             getWorkLogsTemplate(id);
             getUserInfo(id);
-            getWorkLogs(id, datetime_start, datetime_end);
+            getWorkLogs(id, datetime_start, datetime_end, 'hour');
         }
     }
 

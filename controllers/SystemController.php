@@ -217,14 +217,13 @@ class SystemController extends BaseController
         $project = \Yii::$app->request->post('project',false);
         $task = \Yii::$app->request->post('task',false);
         $type = \Yii::$app->request->post('type',false);
-        $month = \Yii::$app->request->post('month',false);
 
         if (\Yii::$app->user->id != $user_id && \Yii::$app->user->identity->isAdmin()) {
             return null;
         }
 
-        $timeStart = \Yii::$app->request->post('timeStart',false);
-        $timeEnd = \Yii::$app->request->post('timeEnd',false);
+        $timeStart = \Yii::$app->request->post('dt_start',false);
+        $timeEnd = \Yii::$app->request->post('dt_end',false);
 
         if(isset($timeStart) && isset($timeEnd)) {
             $query = new Query();
@@ -234,8 +233,8 @@ class SystemController extends BaseController
              SUBSTRING_INDEX(GROUP_CONCAT(CAST(screenshot_preview AS CHAR) ORDER BY timestamp DESC), \',\', 1 ) as screenshot_preview,
              COUNT(id) as count, SUM(activityIndex) as ai,
              MIN(timestamp) as tstart, MAX(timestamp) as tend,
-             SUM(CASE WHEN workTime = 1 THEN 1 ELSE 0 END) workCount,
-             SUM(CASE WHEN workTime = 0 THEN 1 ELSE 0 END) noWorkCount']);
+             SUM(CASE WHEN workTime = 1 THEN 1 ELSE 0 END) work_count,
+             SUM(CASE WHEN workTime = 0 THEN 1 ELSE 0 END) no_work_count']);
             if ($type == 'hour')
                 $query->groupBy([' DATE_FORMAT(FROM_UNIXTIME(timestamp), \'%y%m%d%H\')']);
             elseif ($type == 'day')
