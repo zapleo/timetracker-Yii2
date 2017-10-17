@@ -217,6 +217,7 @@ class SystemController extends BaseController
              SUBSTRING_INDEX(GROUP_CONCAT(CAST(user_id AS CHAR) ORDER BY timestamp DESC), \',\', 1 ) as user_id,
              SUBSTRING_INDEX(GROUP_CONCAT(CAST(screenshot AS CHAR) ORDER BY timestamp DESC), \',\', 1 ) as screenshot,
              SUBSTRING_INDEX(GROUP_CONCAT(CAST(screenshot_preview AS CHAR) ORDER BY timestamp DESC), \',\', 1 ) as screenshot_preview,
+             SUBSTRING_INDEX(GROUP_CONCAT(CAST(issueKey AS CHAR) ORDER BY timestamp DESC), \',\', 1 ) as task,
              COUNT(id) as count, SUM(activityIndex) as ai,
              MIN(timestamp) as tstart, MAX(timestamp) as tend,
              SUM(CASE WHEN workTime = 1 THEN 1 ELSE 0 END) work_count,
