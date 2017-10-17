@@ -229,16 +229,167 @@ function getTasks(dt_start, dt_end, project, task)
 
 }
 
-function getWorkLogs(user_id, dt_start, dt_end, type, project, task)
+function screenshot_block_render(log, type, project, task)
+{
+    var screenshot = '';
+
+    var index = Math.round(log.ai / log.count);
+    var time = '';
+
+    if (log.tstart == log.tend) {
+        time = moment(log.tstart, 'X').format('Y-MM-DD HH:mm:ss');
+    } else {
+        time = moment(log.tstart, 'X').format('Y-MM-DD HH:mm:ss') + ' - ' + moment(log.tend, 'X').format('HH:mm:ss');
+    }
+
+    screenshot += '<div class="screen">';
+    screenshot += '<div class="screen-text-top">' + time + '</div>';
+    screenshot += '<img src="/preview_screenshots/'+log.screenshot_preview+'" alt="..." height="156px" width="280px" class="img-rounded item" data-url="'+log.screenshot+'" data-type="'+
+        type+'" data-tstart="'+log.tstart+'" data-tend="'+log.tend+'" data-log-task="'+log.task+'" data-log-ai="'+log.ai+'" data-project="'+project+'" data-task="'+task+'" data-user-id="'+log.user_id+'">';
+    screenshot += '<div class="screen-text">';
+    screenshot += 'Activity index' + (log.count > 1 ? ' ≈ ' : ' ') + '<span>' + index + '%</span>';
+    screenshot += '</div></div>&nbsp;&nbsp;';
+
+    return screenshot;
+}
+
+function work_logs_carousel_render(el)
+{
+    var logs = el.closest('.modal-body').find('img.item');
+    var modal = $('#screen-modal');
+    var indicators = '';
+    var items = '';
+
+    logs.each(function (index) {
+        var time = moment($(this).data('tstart'), 'X').format('Y-MM-DD HH:mm:ss');
+
+        indicators += '<li data-target="#carousel-example-generic" data-slide-to="'+index+'"';
+        items += '<div class="item';
+
+        if (el.data('tstart') == $(this).data('tstart')) {
+            indicators += ' class="active" ';
+            items += ' active';
+        }
+
+        indicators += '></li>';
+        items += '">' + '<a href="/screenshots/'+$(this).data('url')+'" target="_blank">' +
+            '<img src="/screenshots/'+$(this).data('url')+'" alt="Screenshot"></a><div class="carousel-caption">' +
+            '<h3>'+time+'</h3><h4><a href="https://zapleo.atlassian.net/browse/'+$(this).data('log-task')+'" target="_blank">#'+$(this).data('log-task')+'</a> - AI '+$(this).data('log-ai')+'%</h4>' +
+            '</div></div>';
+    });
+
+    modal.find('h4.modal-title').empty().append($('#logs-modal .modal-title').html());
+    modal.find('ol.carousel-indicators').empty().append(indicators);
+    modal.find('div.carousel-inner').empty().append(items);
+
+    modal.modal();
+}
+
+function work_logs_modal_render(logs, tstart, tend, type, project, task)
+{
+    var count_ai = 0, count = 0, work_count = 0, no_work_count = 0;
+    var count_time = '0h 00m (0h 00m)';
+    var ai = '0';
+
+    var modal = $('#logs-modal');
+    var time = '';
+    var work_logs = '';
+
+    if (tstart == tend) {
+        time = moment(tstart, 'X').format('Y-MM-DD HH:mm:ss');
+    } else {
+        time = moment(tstart, 'X').format('Y-MM-DD HH:mm:ss') + ' - ' + moment(tend, 'X').format('HH:mm:ss');
+    }
+
+    if (logs.length > 0) {
+
+        $.each(logs, function( index, log ) {
+            count_ai += parseInt(log.ai);
+            count += parseInt(log.count);
+            work_count += parseInt(log.work_count);
+            no_work_count += parseInt(log.no_work_count);
+
+            work_logs += screenshot_block_render(log, type, project, task);
+        });
+
+        ai = Math.round(count_ai / count);
+        count_time = parseInt(work_count * 10 / 60) + 'h ' + (work_count * 10)%60 + 'm';
+        count_time += ' (' + parseInt(no_work_count * 10 / 60) + 'h ' + (no_work_count * 10)%60 + 'm)';
+
+    }
+
+    work_logs += '';
+
+    modal.find('div.modal-body').empty().append(work_logs);
+    modal.find('h4.modal-title').empty().append('<span class="glyphicon glyphicon-calendar"></span> ' + time);
+    modal.find('div.modal-footer #time').empty().append('<span class="glyphicon glyphicon-time"></span> ' + count_time);
+    modal.find('div.modal-footer #index').empty().append('<span class="glyphicon glyphicon-signal"></span> ' + ai + '%');
+
+    modal.modal();
+}
+
+function work_logs_render(logs, type, project, task)
+{
+    var count_ai = 0, count = 0, work_count = 0, no_work_count = 0;
+    var count_time = '0h 00m (0h 00m)';
+    var ai = '0';
+
+    var work_logs = '<div class="mcs-horizontal">';
+
+    if (logs.length > 0) {
+
+        $.each(logs, function( index, log ) {
+            count_ai += parseInt(log.ai);
+            count += parseInt(log.count);
+            work_count += parseInt(log.work_count);
+            no_work_count += parseInt(log.no_work_count);
+
+            work_logs += screenshot_block_render(log, type, project, task);
+        });
+
+        ai = Math.round(count_ai / count);
+        count_time = parseInt(work_count * 10 / 60) + 'h ' + (work_count * 10)%60 + 'm';
+        count_time += ' (' + parseInt(no_work_count * 10 / 60) + 'h ' + (no_work_count * 10)%60 + 'm)';
+
+    } else {
+
+        work_logs += '<div class="screen">';
+        work_logs += '<img src="/img/default.png" alt="..." height="156px" class="img-rounded" data-log-id="none">';
+        work_logs += '</div>';
+
+    }
+
+    work_logs += '</div>';
+
+    $('div#logs' + user_id).empty().append(work_logs);
+
+    // $('img').one('error', function() {
+    //     this.src = base_url + 'img/default.png';
+    // });
+
+    $('.mcs-horizontal').mCustomScrollbar({
+        axis:'x',
+        theme:'dark-3',
+        mouseWheelPixels: 250
+    });
+
+    var wl = $('div.work-logs div#work-logs' + user_id);
+
+    wl.find('div.info').attr('count_time', count_time).attr('ai', ai);
+    wl.find('div#uname div#count').empty().append('Time: ' + count_time);
+    wl.find('div#uname div#ai').empty().append('AI ≈ ' + ai + '%');
+}
+
+function getWorkLogs(user_id, dt_start, dt_end, type, render_type, project, task)
 {
     // vars initialize
     if (project == undefined)
-        project = null;
+        project = 0;
     if (task == undefined)
-        task = null;
+        task = 0;
 
-    var all = $('ul#users-list li input#user_all').prop('checked');
-    var empty = $('ul#users-list li input#user_all_empty').prop('checked');
+    //var all = $('ul#users-list li input#user_all').prop('checked');
+    //var empty = $('ul#users-list li input#user_all_empty').prop('checked');
 
     $.ajax({
         url: base_url + '/system/get-work-logs?user_id=' + user_id,
@@ -253,10 +404,6 @@ function getWorkLogs(user_id, dt_start, dt_end, type, project, task)
         },
         success: function (logs) {
 
-            var count_ai = 0, count = 0, work_count = 0, no_work_count = 0;
-            var count_time = '0h 00m (0h 00m)';
-            var ai = '0 %';
-
             // if (all == true && empty == false && res.data.length == 0) {
             //     $('ul#users-list li input#user[value="' + user_id + '"]').prop('checked', false);
             //     $('div#work-logs' + user_id).remove();
@@ -265,66 +412,41 @@ function getWorkLogs(user_id, dt_start, dt_end, type, project, task)
             //     return;
             // }
 
-            var work_logs = '<div class="mcs-horizontal">';
-
-            if (logs.length > 0) {
-
-                for (i = 0; i < logs.length; i++) {
-                    var index = Math.round(logs[i].ai / logs[i].count);
-                    var time = '';
-
-                    count_ai += parseInt(logs[i].ai);
-                    count += parseInt(logs[i].count);
-                    work_count += parseInt(logs[i].work_count);
-                    no_work_count += parseInt(logs[i].no_work_count);
-
-                    if (logs[i].tstart == logs[i].tend) {
-                        time = moment(logs[i].tstart, 'X').format('Y-MM-DD HH:mm:ss');
-                    } else {
-                        time = moment(logs[i].tstart, 'X').format('Y-MM-DD HH:mm:ss') + ' - ' + moment(logs[i].tend, 'X').format('HH:mm:ss');
-                    }
-
-                    work_logs += '<div class="screen">';
-                    work_logs += '<div class="screen-text-top">' + time + '</div>';
-                    work_logs += '<img src="/img/default.png" alt="..." height="156px" width="280px" class="img-rounded item" type="'+
-                        type+'" tstart="'+logs[i].tstart+'" tend="'+logs[i].tend+'" project="'+project+'" task="'+task+'" user-id="'+logs[i].user_id+'">';
-                    work_logs += '<div class="screen-text">';
-                    work_logs += 'Activity index' + (logs[i].count > 1 ? ' ≈ ' : ' ') + '<span>' + index + '%</span>';
-                    work_logs += '</div></div>&nbsp;&nbsp;';
-                }
-
-                ai = Math.round(count_ai / count);
-                count_time = parseInt(work_count * 10 / 60) + 'h ' + (work_count * 10)%60 + 'm';
-                count_time += ' (' + parseInt(no_work_count * 10 / 60) + 'h ' + (no_work_count * 10)%60 + 'm)';
-
+            if (render_type) {
+                work_logs_modal_render(logs, dt_start, dt_end, type, project, task);
             } else {
-
-                work_logs += '<div class="screen">';
-                work_logs += '<img src="/img/default.png" alt="..." height="156px" class="img-rounded" log-id="none">';
-                work_logs += '</div>';
-
+                work_logs_render(logs, type, project, task);
             }
 
-            work_logs += '</div>';
+            $('img.item').off('click');
+            $('img.item').on('click', function() {
+                var img = $(this);
 
-            $('div#logs' + user_id).empty().append(work_logs);
+                var type = img.data('type');
+                var user_id = img.data('user-id');
+                var tstart = img.data('tstart');
+                var tend = img.data('tend');
+                var project = img.data('project');
+                var task = img.data('task');
 
-            // $('img').one('error', function() {
-            //     this.src = base_url + 'img/default.png';
-            // });
+                //console.log(type + ' - ' + user_id + ' - ' + tstart + ' - ' + tend + ' - ' + project + ' - ' + task);
 
-            $('.mcs-horizontal').mCustomScrollbar({
-                axis:'x',
-                theme:'dark-3',
-                mouseWheelPixels: 250
+                if (type == 'month') {
+                    type = 'day';
+
+                    getWorkLogs(user_id, tstart, tend, type, 1, project, task);
+                } else if (type == 'day') {
+                    type = 'hour';
+
+                    getWorkLogs(user_id, tstart, tend, type, 1, project, task);
+                } else if (type == 'hour') {
+                    type = 0;
+
+                    getWorkLogs(user_id, tstart, tend, type, 1, project, task);
+                } else {
+                    work_logs_carousel_render(img);
+                }
             });
-
-            var wl = $('div.work-logs div#work-logs' + user_id);
-
-            wl.find('div.info').attr('count_time', count_time).attr('ai', ai);
-            wl.find('div#uname div#count').empty().append('Time: ' + count_time);
-            wl.find('div#uname div#ai').empty().append('AI ≈ ' + ai);
-
         },
         error: function () {
             alert('Неудалось получить данные!');
@@ -353,9 +475,16 @@ function loadLogsModal(id, type, date, time, index) {
     if (type == 'day') {
 
         $.ajax({
-            url: base_url + '/system/get-work-logs',
+            url: base_url + '/system/get-work-logs?user_id=',
             dataType: 'json',
-            data: {},
+            type: 'POST',
+            data: {
+                'dt_start': dt_start,
+                'dt_end': dt_end,
+                'project': project,
+                'task': task,
+                'type': type
+            },
             success: function (res) {
 
                 //console.log(res);
@@ -592,14 +721,14 @@ function loadLogsModal(id, type, date, time, index) {
 function load_logs(date_start, date_end, type, project, task)
 {
     if (date_end == undefined)
-        date_end = null;
+        date_end = 0;
     if (project == 'All project' || project == 'Nothing selected' || project == undefined)
-        project = null;
+        project = 0;
     if (task == 'All task' || task == 'Nothing selected' || task == undefined)
-        task = null;
+        task = 0;
 
     var datetime_start = moment(date_start, 'D/M/Y').hours(0).minutes(0).seconds(0).format('X');
-    var datetime_end = moment((date_end == null ? date_start : date_end), 'D/M/Y').hours(23).minutes(59).seconds(59).format('X');
+    var datetime_end = moment((date_end == false ? date_start : date_end), 'D/M/Y').hours(23).minutes(59).seconds(59).format('X');
 
     getProjects(datetime_start, datetime_end, project);
 
@@ -607,7 +736,7 @@ function load_logs(date_start, date_end, type, project, task)
         if (localStorage.key(i).startsWith('user')) {
             var id = localStorage[localStorage.key(i)];
 
-            getWorkLogs(id, datetime_start, datetime_end, type, project, task);
+            getWorkLogs(id, datetime_start, datetime_end, type, 0, project, task);
         }
     }
 }
@@ -628,7 +757,7 @@ function init()
 
             getWorkLogsTemplate(id);
             getUserInfo(id);
-            getWorkLogs(id, datetime_start, datetime_end, 'hour');
+            getWorkLogs(id, datetime_start, datetime_end, 'hour', 0);
         }
     }
 
@@ -701,7 +830,7 @@ $(document).ready(function(){
         $('ul#users-list li input#user_all').prop('checked', false);
 
         $('#months').selectpicker('val', 'Nothing selected');
-        load_logs(date_start, null, 'hour');
+        load_logs(date_start, 0, 'hour');
         
         $('#task').empty();
         $('#task').selectpicker('refresh');
@@ -766,23 +895,12 @@ $(document).ready(function(){
         $('ul#users-list li input#user_all').prop('checked', false);
 
         if (project == 'All project' || !project) {
-            project = null;
+            project = 0;
         }
 
         load_logs($('input#datepicker-start').val(), $('input#datepicker-end').val(), type, project, task);
     });
     // end
-
-    $(this).on('click', 'img.item', function(){
-
-        var type = $(this).attr('type');
-        var date = $(this).attr('date');
-        var time = $(this).attr('time');
-        var id = type != 'none' ? $(this).attr('user-id') : $(this).attr('log-id');
-        var i = $(this).attr('i') ? $(this).attr('i') : null;
-
-        loadLogsModal(id, type, date, time, i);
-    });
 
     // stop propagation users-list
     $('.dropdown-menu#users-list').click(function (e) {

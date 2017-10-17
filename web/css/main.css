@@ -127,16 +127,6 @@
     overflow-y: auto;
 }
 
-.carousel-control {
-    margin-left: 2.5%;
-    margin-right: 2.5%;
-    border-radius: 6px;
-}
-
-.carousel .left, .carousel .right {
-    cursor: pointer;
-}
-
 .ex-tooltip {
     position: absolute;
     background: #EEE;
