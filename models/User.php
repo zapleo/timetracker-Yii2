@@ -168,6 +168,6 @@ class User extends ActiveRecord implements IdentityInterface
 
     public function isAdmin()
     {
-        return is_null($this)?null:$this->rights;
+        return $this->rights;
     }
 }
