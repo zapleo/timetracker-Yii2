@@ -143,7 +143,6 @@ class SystemController extends BaseController
 
         if ($uid) {
 
-
             $timeStart = \Yii::$app->request->post('dt_start',false);
             $timeEnd =  \Yii::$app->request->post('dt_end',false);
 
@@ -184,7 +183,7 @@ class SystemController extends BaseController
             $data = $query->select(["DISTINCT `issueKey` AS task"])
                 ->from('work_log')->where('user_id IN ('.$in.')')
                 ->andWhere('timestamp BETWEEN :start AND :end', ['start' => $timeStart, 'end' => $timeEnd])
-                ->andWhere('issueKey LIKE :project')->params(['project'=>$project.'%'])
+                ->andWhere('issueKey LIKE :project', ['project'=>$project.'%'])
                 ->orderBy('task')
                 ->all();
 
@@ -199,7 +198,7 @@ class SystemController extends BaseController
      * @param $user_id
      * @return array|\DateTime
      */
-    public function actionGetFullLogs($user_id)
+    public function actionGetWorkLogs($user_id)
     {
         $project = \Yii::$app->request->post('project',false);
         $task = \Yii::$app->request->post('task',false);
@@ -238,10 +237,10 @@ class SystemController extends BaseController
                 $query->andWhere('timestamp BETWEEN :start AND :end', ['start' => $timeStart, 'end' => $timeEnd]);
 
             if ($project)
-                $query->andWhere(['issueKey LIKE :project'], ['project' => $project . '%']);
+                $query->andWhere('issueKey LIKE :project', ['project' => $project . '%']);
 
             if ($task)
-                $query->andWhere(['issueKey LIKE :task'], ['task' => $task]);
+                $query->andWhere('issueKey = :task', ['task' => $task]);
             $query->orderBy('tend DESC');
             $data = $query->all();
 

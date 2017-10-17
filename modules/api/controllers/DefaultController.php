@@ -20,6 +20,8 @@ class DefaultController extends Controller
     const TIME_START = 8;
     const TIME_END = 18;
 
+    //TODO: сохранять timestamp вместо date
+
     public function behaviors()
     {
         Yii::$app->controller->enableCsrfValidation = false;
