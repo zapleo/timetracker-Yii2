@@ -282,6 +282,10 @@ function work_logs_carousel_render(el)
     modal.find('ol.carousel-indicators').empty().append(indicators);
     modal.find('div.carousel-inner').empty().append(items);
 
+    $('img').one('error', function() {
+        this.src = base_url + '/img/default-full.png';
+    });
+
     modal.modal();
     $('.carousel').carousel('pause');
 }
@@ -326,6 +330,10 @@ function work_logs_modal_render(logs, tstart, tend, type, project, task)
     modal.find('div.modal-footer #time').empty().append('<span class="glyphicon glyphicon-time"></span> ' + count_time);
     modal.find('div.modal-footer #index').empty().append('<span class="glyphicon glyphicon-signal"></span> ' + ai + '%');
 
+    $('img').one('error', function() {
+        this.src = base_url + '/img/default.png';
+    });
+
     modal.modal();
 }
 
@@ -364,9 +372,9 @@ function work_logs_render(logs, type, project, task)
 
     $('div#logs' + user_id).empty().append(work_logs);
 
-    // $('img').one('error', function() {
-    //     this.src = base_url + 'img/default.png';
-    // });
+    $('img').one('error', function() {
+        this.src = base_url + '/img/default.png';
+    });
 
     $('.mcs-horizontal').mCustomScrollbar({
         axis:'x',
