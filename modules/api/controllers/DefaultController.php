@@ -75,7 +75,7 @@ class DefaultController extends Controller
 
             $log->user_id = $user->id;
             $log->screenshot = $worklog['screenshot'];
-            $log->dateTime = date('Y-m-d H:i:s', round($worklog['dateTime'] / 1000));
+            $log->timestamp = round($worklog['dateTime'] / 1000);
             $log->countMouseEvent = $worklog['countMouseEvent'];
             $log->countKeyboardEvent = $worklog['countKeyboardEvent'];
             $log->activityIndex = $worklog['activityIndex'];

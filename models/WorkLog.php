@@ -17,6 +17,7 @@ use Yii;
  * @property integer $user_id
  * @property string $issueKey
  * @property integer $workTime
+ * @property integer $timestamp
  *
  * @property User $user
  */
@@ -37,7 +38,7 @@ class WorkLog extends \yii\db\ActiveRecord
     {
         return [
             [['activityIndex', 'countMouseEvent', 'countKeyboardEvent', 'screenshot', 'user_id', 'issueKey'], 'required'],
-            [['activityIndex', 'countMouseEvent', 'countKeyboardEvent', 'user_id', 'workTime'], 'integer'],
+            [['activityIndex', 'countMouseEvent', 'countKeyboardEvent', 'user_id', 'workTime', 'timestamp'], 'integer'],
             [['dateTime'], 'safe'],
             [['screenshot', 'screenshot_preview'], 'string', 'max' => 255],
             [['issueKey'], 'string', 'max' => 10],
@@ -61,6 +62,7 @@ class WorkLog extends \yii\db\ActiveRecord
             'user_id' => 'User ID',
             'issueKey' => 'Issue Key',
             'workTime' => 'Work Time',
+            'timestamp' => 'Time'
         ];
     }
 
