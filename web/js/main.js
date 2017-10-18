@@ -13,10 +13,16 @@ var months_obj = {
     'December': 11
 };
 
+var modal_count = 0;
+
+/**
+ *
+ * @param user_id
+ */
 function getWorkLogsTemplate(user_id) {
     var row = '';
 
-    row += '<div class="wl" id="work-logs' + user_id + '" user="' + user_id + '"><div class="row well well-sm"><div class="col-md-2 user_info" id="user' + user_id + '">';
+    row += '<div class="wl" id="work-logs' + user_id + '" user="' + user_id + '" style="display: none"><div class="row well well-sm"><div class="col-md-2 user_info" id="user' + user_id + '">';
     row += '</div><div class="col-md-10 info">';
     row += '<div id="logs' + user_id + '" class="user_logs"></div>';
     row += '</div></div></div>';
@@ -27,6 +33,9 @@ function getWorkLogsTemplate(user_id) {
     $('div.work-logs').append(row);
 }
 
+/**
+ *
+ */
 function getUsersList()
 {
     $.ajax({
@@ -39,7 +48,7 @@ function getUsersList()
 
             for(i = 0; i < users.length; i++)
             {
-                users_list += '<li id="user'+users[i].id+'">';
+                users_list += '<li id="user'+users[i].id+'" class="user">';
                 users_list += '<div class="checkbox"><label>';
                 users_list += '<input type="checkbox" ' + (localStorage['user'+users[i].id] == users[i].id ? 'checked="checked"' : '') + ' id="user" value="' + users[i].id + '"> ' +
                     users[i].first_name + ' ' + users[i].last_name;
@@ -57,6 +66,10 @@ function getUsersList()
 
             $('#users-list').append(users_list);
 
+            if ( $('#users-list li.user :input:checkbox:checked').length == $('#users-list li.user :input').length ) {
+                $('ul#users-list').find('li#user_all_empty input').prop('checked', true);
+            }
+
         },
         error: function () {
             alert('Неудалось получить данные!');
@@ -65,6 +78,10 @@ function getUsersList()
 
 }
 
+/**
+ *
+ * @param id
+ */
 function getUserInfo(id)
 {
     $.ajax({
@@ -107,6 +124,12 @@ function getUserInfo(id)
 
 }
 
+/**
+ *
+ * @param dt_start
+ * @param dt_end
+ * @param project
+ */
 function getProjects(dt_start, dt_end, project)
 {
     if (project == undefined)
@@ -160,6 +183,13 @@ function getProjects(dt_start, dt_end, project)
 
 }
 
+/**
+ *
+ * @param dt_start
+ * @param dt_end
+ * @param project
+ * @param task
+ */
 function getTasks(dt_start, dt_end, project, task)
 {
     if (task == undefined)
@@ -229,6 +259,14 @@ function getTasks(dt_start, dt_end, project, task)
 
 }
 
+/**
+ *
+ * @param log
+ * @param type
+ * @param project
+ * @param task
+ * @returns {string}
+ */
 function screenshot_block_render(log, type, project, task)
 {
     var screenshot = '';
@@ -253,6 +291,10 @@ function screenshot_block_render(log, type, project, task)
     return screenshot;
 }
 
+/**
+ *
+ * @param el
+ */
 function work_logs_carousel_render(el)
 {
     var logs = el.closest('.modal-body').find('img.item');
@@ -278,7 +320,7 @@ function work_logs_carousel_render(el)
             '</div></div>';
     });
 
-    modal.find('h4.modal-title').empty().append($('#logs-modal .modal-title').html());
+    modal.find('h4.modal-title').empty().append($('#logs-modal-0 .modal-title').html());
     modal.find('ol.carousel-indicators').empty().append(indicators);
     modal.find('div.carousel-inner').empty().append(items);
 
@@ -287,16 +329,27 @@ function work_logs_carousel_render(el)
     });
 
     modal.modal();
+    modal_count++;
     $('.carousel').carousel('pause');
 }
 
-function work_logs_modal_render(logs, tstart, tend, type, project, task)
+/**
+ *
+ * @param uid
+ * @param logs
+ * @param tstart
+ * @param tend
+ * @param type
+ * @param project
+ * @param task
+ */
+function work_logs_modal_render(uid, logs, tstart, tend, type, project, task)
 {
     var count_ai = 0, count = 0, work_count = 0, no_work_count = 0;
     var count_time = '0h 00m (0h 00m)';
     var ai = '0';
 
-    var modal = $('#logs-modal');
+    var modal = $('#logs-modal-'+type);
     var time = '';
     var work_logs = '';
 
@@ -335,9 +388,18 @@ function work_logs_modal_render(logs, tstart, tend, type, project, task)
     });
 
     modal.modal();
+    modal_count++;
 }
 
-function work_logs_render(logs, type, project, task)
+/**
+ *
+ * @param uid
+ * @param logs
+ * @param type
+ * @param project
+ * @param task
+ */
+function work_logs_render(uid, logs, type, project, task)
 {
     var count_ai = 0, count = 0, work_count = 0, no_work_count = 0;
     var count_time = '0h 00m (0h 00m)';
@@ -370,7 +432,7 @@ function work_logs_render(logs, type, project, task)
 
     work_logs += '</div>';
 
-    $('div#logs' + user_id).empty().append(work_logs);
+    $('div#logs' + uid).empty().append(work_logs);
 
     $('img').one('error', function() {
         this.src = base_url + '/img/default.png';
@@ -382,14 +444,25 @@ function work_logs_render(logs, type, project, task)
         mouseWheelPixels: 250
     });
 
-    var wl = $('div.work-logs div#work-logs' + user_id);
+    var wl = $('div.work-logs div#work-logs' + uid);
 
     wl.find('div.info').attr('count_time', count_time).attr('ai', ai);
     wl.find('div#uname div#count').empty().append('Time: ' + count_time);
     wl.find('div#uname div#ai').empty().append('AI ≈ ' + ai + '%');
+    wl.show();
 }
 
-function getWorkLogs(user_id, dt_start, dt_end, type, render_type, project, task)
+/**
+ *
+ * @param uid
+ * @param dt_start
+ * @param dt_end
+ * @param type
+ * @param render_type
+ * @param project
+ * @param task
+ */
+function getWorkLogs(uid, dt_start, dt_end, type, render_type, project, task)
 {
     // vars initialize
     if (project == undefined)
@@ -397,11 +470,13 @@ function getWorkLogs(user_id, dt_start, dt_end, type, render_type, project, task
     if (task == undefined)
         task = 0;
 
-    //var all = $('ul#users-list li input#user_all').prop('checked');
-    //var empty = $('ul#users-list li input#user_all_empty').prop('checked');
+    if (is_admin) {
+        var all = $('ul#users-list li#user_all input').prop('checked');
+        var empty = $('ul#users-list li#user_all_empty input').prop('checked');
+    }
 
     $.ajax({
-        url: base_url + '/system/get-work-logs?user_id=' + user_id,
+        url: base_url + '/system/get-work-logs?user_id=' + uid,
         dataType: 'json',
         type: 'POST',
         data: {
@@ -413,18 +488,18 @@ function getWorkLogs(user_id, dt_start, dt_end, type, render_type, project, task
         },
         success: function (logs) {
 
-            // if (all == true && empty == false && res.data.length == 0) {
-            //     $('ul#users-list li input#user[value="' + user_id + '"]').prop('checked', false);
-            //     $('div#work-logs' + user_id).remove();
-            //     delete localStorage['user'+user_id];
-            //
-            //     return;
-            // }
+            if (is_admin && all == true && empty == false && logs.length == 0) {
+                $('ul#users-list li.user input[value="' + uid + '"]').prop('checked', false);
+                $('div#work-logs' + uid).remove();
+                delete localStorage['user'+uid];
+
+                return;
+            }
 
             if (render_type) {
-                work_logs_modal_render(logs, dt_start, dt_end, type, project, task);
+                work_logs_modal_render(uid, logs, dt_start, dt_end, type, project, task);
             } else {
-                work_logs_render(logs, type, project, task);
+                work_logs_render(uid, logs, type, project, task);
             }
 
             $('img.item').off('click');
@@ -432,7 +507,7 @@ function getWorkLogs(user_id, dt_start, dt_end, type, render_type, project, task
                 var img = $(this);
 
                 var type = img.data('type');
-                var user_id = img.data('user-id');
+                var u_id = img.data('user-id');
                 var tstart = img.data('tstart');
                 var tend = img.data('tend');
                 var project = img.data('project');
@@ -443,15 +518,15 @@ function getWorkLogs(user_id, dt_start, dt_end, type, render_type, project, task
                 if (type == 'month') {
                     type = 'day';
 
-                    getWorkLogs(user_id, tstart, tend, type, 1, project, task);
+                    getWorkLogs(u_id, tstart, tend, type, 1, project, task);
                 } else if (type == 'day') {
                     type = 'hour';
 
-                    getWorkLogs(user_id, tstart, tend, type, 1, project, task);
+                    getWorkLogs(u_id, tstart, tend, type, 1, project, task);
                 } else if (type == 'hour') {
                     type = 0;
 
-                    getWorkLogs(user_id, tstart, tend, type, 1, project, task);
+                    getWorkLogs(u_id, tstart, tend, type, 1, project, task);
                 } else {
                     work_logs_carousel_render(img);
                 }
@@ -464,6 +539,14 @@ function getWorkLogs(user_id, dt_start, dt_end, type, render_type, project, task
 
 }
 
+/**
+ *
+ * @param date_start
+ * @param date_end
+ * @param type
+ * @param project
+ * @param task
+ */
 function load_logs(date_start, date_end, type, project, task)
 {
     if (date_end == undefined)
@@ -477,6 +560,7 @@ function load_logs(date_start, date_end, type, project, task)
     var datetime_end = moment((date_end == false ? date_start : date_end), 'D/M/Y').hours(23).minutes(59).seconds(59).format('X');
 
     getProjects(datetime_start, datetime_end, project);
+    getTasks(datetime_start, datetime_end, project, task);
 
     for (i = 0; i < localStorage.length; i++) {
         if (localStorage.key(i).startsWith('user')) {
@@ -487,6 +571,81 @@ function load_logs(date_start, date_end, type, project, task)
     }
 }
 
+/**
+ *
+ * @param input
+ * @param date_start
+ * @param date_end
+ * @param type
+ */
+function load_user(input, date_start, date_end, type)
+{
+    var uid = $(input).attr('value');
+
+    var project = $('button[data-id="project"]').attr('title');
+    var task = $('button[data-id="task"]').attr('title');
+
+    if (project == 'All project' || project == 'Nothing selected' || project == undefined)
+        project = 0;
+    if (task == 'All task' || task == 'Nothing selected' || task == undefined)
+        task = 0;
+
+    var datetime_start = moment(date_start, 'D/M/Y').hours(0).minutes(0).seconds(0).format('X');
+    var datetime_end = moment(date_end, 'D/M/Y').hours(23).minutes(59).seconds(59).format('X');
+
+    if ( $(input).prop('checked') ) {
+        $('div#main').css({ display: 'none' });
+
+        $(input).prop('checked', true);
+
+        // save to localStorage
+        if (is_admin)
+            localStorage['user'+uid] = uid;
+
+        getProjects(datetime_start, datetime_end, project);
+
+        if (project != 0)
+            getTasks(datetime_start, datetime_end, project, task);
+
+        getWorkLogsTemplate(uid);
+        getUserInfo(uid);
+        getWorkLogs(uid, datetime_start, datetime_end, type, 0, project, task);
+
+    } else {
+
+        $(input).prop('checked', false);
+
+        if (is_admin && localStorage.length >= 1) {
+            delete localStorage['user'+uid];
+        }
+
+        $('div#work-logs' + uid).remove();
+
+        getProjects(datetime_start, datetime_end);
+
+        if (project != 0)
+            getTasks(datetime_start, datetime_end);
+
+        if (localStorage.length > 0) {
+
+            for (i = 0; i < localStorage.length; i++) {
+                if (localStorage.key(i).startsWith('user')) {
+                    var id = localStorage[localStorage.key(i)];
+
+                    getWorkLogs(id, datetime_start, datetime_end, type, 0);
+                }
+            }
+        }
+
+        if ($('input:checkbox:checked').length == 0)
+            $('div#main').css({ display: 'block' });
+
+    }
+}
+
+/**
+ *
+ */
 function init()
 {
     if (is_admin)
@@ -495,7 +654,8 @@ function init()
     var datetime_start = moment().hours(0).minutes(0).seconds(0).format('X');
     var datetime_end = moment().hours(23).minutes(59).seconds(59).format('X');
 
-    getProjects(datetime_start, datetime_end);
+    if (localStorage.length > 0)
+        getProjects(datetime_start, datetime_end);
 
     for (i = 0; i < localStorage.length; i++) {
         if (localStorage.key(i).startsWith('user')) {
@@ -510,13 +670,83 @@ function init()
 }
 
 $(document).ready(function(){
-    if (!is_admin && !localStorage['user'+user_id])
-        localStorage['user'+user_id] = user_id;
+    if (!is_admin && !localStorage['user'+user_id]) {
+        localStorage.clear();
+        localStorage['user' + user_id] = user_id;
+    }
+
+    if (is_admin && localStorage.length == 0) {
+        localStorage['user' + user_id] = user_id;
+    }
 
     // Start initialization
     init();
 
-    var today = new Date();
+    $('#screen-modal').off('hide.bs.modal');
+    $('#screen-modal').on('hide.bs.modal', function (e) {
+        $('body').css('overflow', 'hidden');
+        $('#logs-modal-0').css('overflow', 'auto');
+        $('#logs-modal-0').show();
+
+        modal_count--;
+    });
+
+    $('#logs-modal-0').off('hide.bs.modal');
+    $('#logs-modal-0').on('hide.bs.modal', function (e) {
+        if (modal_count > 1) {
+            $('body').css('overflow', 'hidden');
+            $('#logs-modal-hour').css('overflow', 'auto');
+            $('#logs-modal-hour').show();
+        } else {
+            $('body').css('overflow', 'auto');
+        }
+
+        modal_count--;
+    });
+
+    $('#logs-modal-hour').off('hide.bs.modal');
+    $('#logs-modal-hour').on('hide.bs.modal', function (e) {
+        if (modal_count > 2) {
+            $('body').css('overflow', 'hidden');
+            $('#logs-modal-day').css('overflow', 'auto');
+            $('#logs-modal-day').show();
+        } else {
+            $('body').css('overflow', 'auto');
+        }
+
+        modal_count--;
+    });
+
+    $('#logs-modal-day').off('hide.bs.modal');
+    $('#logs-modal-day').on('hide.bs.modal', function (e) {
+        $('body').css('overflow', 'auto');
+        modal_count--;
+    });
+
+    $('#screen-modal').off('show.bs.modal');
+    $('#screen-modal').on('show.bs.modal', function (e) {
+        $('#logs-modal-0').hide();
+        $('body').css('overflow', 'hidden');
+    });
+
+    $('#logs-modal-0').off('show.bs.modal');
+    $('#logs-modal-0').on('show.bs.modal', function (e) {
+        $('#logs-modal-hour').hide();
+        $('body').css('overflow', 'hidden');
+    });
+
+    $('#logs-modal-hour').off('show.bs.modal');
+    $('#logs-modal-hour').on('show.bs.modal', function (e) {
+        $('#logs-modal-day').hide();
+        $('body').css('overflow', 'hidden');
+    });
+
+    $('#logs-modal-day').off('show.bs.modal');
+    $('#logs-modal-day').on('show.bs.modal', function (e) {
+        $('body').css('overflow', 'hidden');
+    });
+
+    //var today = new Date();
     //var months = $('select#months option');
 
     // Filters menu
@@ -573,7 +803,6 @@ $(document).ready(function(){
         var date_start = $('input#datepicker-start').val();
 
         $('#datepicker-end').val(date_start);
-        $('ul#users-list li input#user_all').prop('checked', false);
 
         $('#months').selectpicker('val', 'Nothing selected');
         load_logs(date_start, 0, 'hour');
@@ -593,8 +822,6 @@ $(document).ready(function(){
     $('#datepicker-end').on('dp.hide', function(e){
         var date_start = $('input#datepicker-start').val();
         var date_end = $('input#datepicker-end').val();
-
-        $('ul#users-list li input#user_all').prop('checked', false);
 
         $('#months').selectpicker('val', 'Nothing selected');
         load_logs(date_start, date_end, 'hour');
@@ -617,15 +844,9 @@ $(document).ready(function(){
         load_logs($('input#datepicker-start').val(), $('input#datepicker-end').val(), type, project);
         getTasks(datetime_start, datetime_end, project);
 
-        $('ul#users-list li input#user_all').prop('checked', false);
-
         $('button[data-id="task"]').closest('div').removeClass('hide');
 
         $('#task').empty();
-
-        if (project == 'All project') {
-            $('button[data-id="task"]').closest('div').addClass('hide');
-        }
     });
     // end
 
@@ -637,12 +858,6 @@ $(document).ready(function(){
 
         if ($('button[data-id="months"]').attr('title') != 'Nothing selected')
             type = 'day';
-
-        $('ul#users-list li input#user_all').prop('checked', false);
-
-        if (project == 'All project' || !project) {
-            project = 0;
-        }
 
         load_logs($('input#datepicker-start').val(), $('input#datepicker-end').val(), type, project, task);
     });
@@ -657,5 +872,69 @@ $(document).ready(function(){
         }
     });
     // end
+
+    $(this).on('click', '#users-list li.user', function() {
+        var type = 'hour';
+
+        if ($('button[data-id="months"]').attr('title') != 'Nothing selected')
+            type = 'day';
+
+        load_user($(this).find('input'), $('input#datepicker-start').val(), $('input#datepicker-end').val(), type);
+
+        if ( $(this).find('input').prop('checked') == false ) {
+            $('ul#users-list').find('li#user_all input').prop('checked', false);
+        }
+
+        if ( $('#users-list li.user :input:checkbox:checked').length == $('#users-list li.user :input').length ) {
+            $('ul#users-list').find('li#user_all_empty input').prop('checked', true);
+        }
+    });
+
+    $(this).on('click', '#users-list li#user_all, #users-list li#user_all_empty', function(){
+        var project = $('button[data-id="project"]').attr('title');
+        var task = $('button[data-id="task"]').attr('title');
+        var type = 'hour';
+
+        var checkbox = $(this);
+
+        if ($('button[data-id="months"]').attr('title') != 'Nothing selected')
+            type = 'day';
+
+        if ($(this).attr('id') == 'user_all') {
+            $('ul#users-list li#user_all_empty input').prop('checked', false);
+        } else if ($(this).attr('id') == 'user_all_empty') {
+            $('ul#users-list li#user_all input').prop('checked', false);
+        }
+
+        if ($(this).find('input').prop('checked')) {
+            $.each($('#users-list li.user :input'), function (key, value) {
+                var uid = $(value).attr('value');
+
+                if (!$(value).prop('checked')) {
+                    localStorage['user'+uid] = uid;
+                    $(value).prop('checked', true);
+
+                    getWorkLogsTemplate(uid);
+                    getUserInfo(uid);
+                    load_logs($('input#datepicker-start').val(), $('input#datepicker-end').val(), type, project, task);
+                } else {
+                    if ($(checkbox).attr('id') == 'user_all') {
+                        var user = $('div.work-logs div#work-logs' + uid);
+
+                        if ($(user).find('div.info').attr('ai') == '0') {
+                            $('ul#users-list li.user input[value="' + uid + '"]').prop('checked', false);
+                            $('div#work-logs' + uid).remove();
+                            delete localStorage['user'+uid];
+                        }
+                    }
+                }
+            });
+        } else {
+            $('#users-list li.user :input').prop('checked', false);
+            localStorage.clear();
+            $('.work-logs').empty();
+            $('#main').show();
+        }
+    });
 
 });

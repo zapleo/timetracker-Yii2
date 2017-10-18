@@ -79,7 +79,7 @@ class SystemController extends BaseController
             $item['preview_screenshots'] = date('Y/m/d').'/'.$item['id'].'.jpg';
             $image->save($preview_name);
 
-            imagedestroy($image);
+            imagedestroy($image->image);
 
             if (file_exists($preview_name)) {
                 return $item['preview_screenshots'];
@@ -98,7 +98,7 @@ class SystemController extends BaseController
         $data = [];
         if($user->isAdmin())
         {
-            $users = User::find()->all();
+            $users = User::findAll(['hide' => 0]);
         }
         else
             $users[] = $user;
@@ -204,7 +204,7 @@ class SystemController extends BaseController
         $task = \Yii::$app->request->post('task',false);
         $type = \Yii::$app->request->post('type',false);
 
-        if (\Yii::$app->user->id != $user_id && \Yii::$app->user->identity->isAdmin()) {
+        if (\Yii::$app->user->id != $user_id && !\Yii::$app->user->identity->isAdmin()) {
             return null;
         }
 
@@ -245,27 +245,27 @@ class SystemController extends BaseController
             $query->orderBy('tend DESC');
             $data = $query->all();
 
-//            foreach ($data as $k=>$item)
-//            {
-//                if($item['count']>1 || is_null($item['screenshot_preview']))
-//                {
-//                    $log = WorkLog::findOne($item['id']);
-//                    if(!is_null($log))
-//                        if(is_null($log->screenshot_preview))
-//                        {
-//                            $img = $this->generatePreview($item);
-//                            if($img)
-//                            {
-//                                $log->screenshot_preview = $img;
-//                                $log->save();
-//                                $data[$k]['screenshot_preview']=$img;
-//                            }
-//
-//                        }
-//
-//                }
-//
-//            }
+            foreach ($data as $k=>$item)
+            {
+                if($item['count']>1 || is_null($item['screenshot_preview']))
+                {
+                    $log = WorkLog::findOne($item['id']);
+                    if(!is_null($log))
+                        if(is_null($log->screenshot_preview))
+                        {
+                            $img = $this->generatePreview($item);
+                            if($img)
+                            {
+                                $log->screenshot_preview = $img;
+                                $log->save();
+                                $data[$k]['screenshot_preview']=$img;
+                            }
+
+                        }
+
+                }
+
+            }
             $this->formatJson();
             return $data;
         }

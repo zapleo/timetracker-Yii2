@@ -9,7 +9,47 @@
 ?>
 
 <!-- Modal logs [type day] -->
-<div class="modal fade bs-example-modal-lg" id="logs-modal" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade bs-example-modal-lg" id="logs-modal-day" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">
+                </h4>
+            </div>
+            <div class="modal-body text-center">
+            </div>
+            <div class="modal-footer">
+                <h4 class="navbar-left" id="time">
+                </h4>
+                <h4 id="index"></h4>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal logs [type hour] -->
+<div class="modal fade bs-example-modal-lg" id="logs-modal-hour" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">
+                </h4>
+            </div>
+            <div class="modal-body text-center">
+            </div>
+            <div class="modal-footer">
+                <h4 class="navbar-left" id="time">
+                </h4>
+                <h4 id="index"></h4>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal logs [type day] -->
+<div class="modal fade bs-example-modal-lg" id="logs-modal-0" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
