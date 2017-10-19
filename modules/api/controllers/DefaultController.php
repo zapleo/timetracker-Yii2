@@ -143,10 +143,10 @@ class DefaultController extends Controller
             if ($request->isPost) {
                 $body = Yii::$app->getRequest()->getBodyParams();
 
-                $hash = md5($body['workLog'][0]['dateTime']);
+                $hash = md5($body['workLog']['dateTime']);
 
                 if ($body['auth'] === $hash) {
-                    $log_id = $this->setLog($body['workLog'][0]);
+                    $log_id = $this->setLog($body['workLog']);
 
                     return $log_id;
                 } else {
