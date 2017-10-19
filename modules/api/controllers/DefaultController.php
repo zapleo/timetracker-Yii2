@@ -82,6 +82,7 @@ class DefaultController extends Controller
             $log->activityIndex = $worklog['activityIndex'];
             $log->issueKey = $worklog['issueKey'];
             $log->workTime = $this->checkWorkTime($time);
+            $log->dateTime = date('Y-m-d H:i:s',$time);
 
             if ($log->save())
                 return $log->id;
