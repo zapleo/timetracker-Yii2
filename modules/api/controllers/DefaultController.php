@@ -47,11 +47,10 @@ class DefaultController extends Controller
         // workTime
         $work_time = 0;
 
-        $date_time = round($datetime / 1000);
         // hour (int)
-        $hour = date('H', $date_time);
+        $hour = date('H', $datetime);
         // day (int)
-        $day = date('N', $date_time);
+        $day = date('N', $datetime);
 
         if ($hour >= self::TIME_START && $hour < self::TIME_END)
             $work_time = 1;
@@ -73,14 +72,16 @@ class DefaultController extends Controller
         if ($user) {
             $log = new WorkLog();
 
+            $time = round($worklog['dateTime'] / 1000);
+
             $log->user_id = $user->id;
             $log->screenshot = $worklog['screenshot'];
-            $log->timestamp = round($worklog['dateTime'] / 1000);
+            $log->timestamp = $time;
             $log->countMouseEvent = $worklog['countMouseEvent'];
             $log->countKeyboardEvent = $worklog['countKeyboardEvent'];
             $log->activityIndex = $worklog['activityIndex'];
             $log->issueKey = $worklog['issueKey'];
-            $log->workTime = $this->checkWorkTime($worklog['dateTime']);
+            $log->workTime = $this->checkWorkTime($time);
 
             if ($log->save())
                 return $log->id;
