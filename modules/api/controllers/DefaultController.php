@@ -153,7 +153,7 @@ class DefaultController extends Controller
                         $response['status'] = 200;
                     else
                         $response['status'] = 500;
-                    $response['message'] = $log_id;
+                    $response['message']['id'] = array($log_id);
                     return $response;
                 } else {
                     throw new BadRequestHttpException('Authorization check failed!');
@@ -168,7 +168,7 @@ class DefaultController extends Controller
 
     /**
      * @return array
-     * @throws BadRequestHttpException\
+     * @throws BadRequestHttpException
      */
     public function actionLogs()
     {
