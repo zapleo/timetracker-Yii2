@@ -132,7 +132,7 @@ class DefaultController extends Controller
     }
 
     /**
-     * @return bool|int
+     * @return array
      * @throws BadRequestHttpException
      */
     public function actionLog()
@@ -147,8 +147,14 @@ class DefaultController extends Controller
 
                 if ($body['auth'] === $hash) {
                     $log_id = $this->setLog($body['workLog']);
-
-                    return $log_id;
+                    \Yii::$app->response->format = Response::FORMAT_JSON;
+                    $response = [];
+                    if($log_id)
+                        $response['status'] = 200;
+                    else
+                        $response['status'] = 500;
+                    $response['message'] = $log_id;
+                    return $response;
                 } else {
                     throw new BadRequestHttpException('Authorization check failed!');
                 }
@@ -161,8 +167,8 @@ class DefaultController extends Controller
     }
 
     /**
-     * @return bool
-     * @throws BadRequestHttpException
+     * @return array
+     * @throws BadRequestHttpException\
      */
     public function actionLogs()
     {
@@ -179,7 +185,8 @@ class DefaultController extends Controller
                         $this->setLog($log);
                     }
 
-                    return true;
+                    \Yii::$app->response->format = Response::FORMAT_JSON;
+                    return ['message'=>true];
                 } else {
                     throw new BadRequestHttpException('Authorization check failed!');
                 }
