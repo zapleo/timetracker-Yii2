@@ -3,8 +3,8 @@
  * @var $this \yii\web\View
  */
 
-$user_id = is_null(Yii::$app->user->id) ? false : Yii::$app->user->id;
-$admin = is_null(Yii::$app->user->identity) ? false : Yii::$app->user->identity->isAdmin();
+$user_id = is_null(Yii::$app->user->id) ? 0 : Yii::$app->user->id;
+$admin = is_null(Yii::$app->user->identity) ? 0 : Yii::$app->user->identity->isAdmin();
 ?>
 <script type="text/javascript">
     var base_url = <?= json_encode(Yii::$app->params['base_url']) ?>;
