@@ -168,7 +168,7 @@ class DefaultController extends Controller
 
     /**
      * @return array
-     * @throws BadRequestHttpException\
+     * @throws BadRequestHttpException
      */
     public function actionLogs()
     {
