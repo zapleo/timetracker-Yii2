@@ -475,6 +475,14 @@ function getWorkLogs(uid, dt_start, dt_end, type, render_type, project, task)
         var empty = $('ul#users-list li#user_all_empty input').prop('checked');
     }
 
+    var diff = dt_end - dt_start;
+    diff = diff / 60 / 60 / 24;
+
+    if (diff > 1)
+        type = 'day';
+    if (diff > 30)
+        type = 'month';
+
     $.ajax({
         url: base_url + '/system/get-work-logs?user_id=' + uid,
         dataType: 'json',
