@@ -13,6 +13,7 @@ var months_obj = {
     'December': 11
 };
 
+var project_ready = false;
 var modal_count = 0;
 
 /**
@@ -175,6 +176,8 @@ function getProjects(dt_start, dt_end, project)
 
             $('#project').selectpicker('refresh');
 
+            project_ready = true;
+
         },
         error: function () {
             alert('Неудалось получить данные!');
@@ -275,17 +278,28 @@ function screenshot_block_render(log, type, project, task)
     var time = '';
 
     if (log.tstart == log.tend) {
-        time = moment(log.tstart, 'X').format('Y-MM-DD HH:mm:ss');
+        time = moment(log.tstart, 'X').format('HH:mm:ss');
     } else {
-        time = moment(log.tstart, 'X').format('Y-MM-DD HH:mm:ss') + ' - ' + moment(log.tend, 'X').format('HH:mm:ss');
+        time = moment(log.tstart, 'X').format('Do HH:mm:ss') + ' - ' + moment(log.tend, 'X').format('HH:mm:ss');
     }
+
+    if (type == 'month') {
+        time = moment(log.tstart, 'X').format('MMMM YYYY');
+    }
+
+    if (type == 'day') {
+        time = moment(log.tstart, 'X').format('MMM Do YY') + ' ' + moment(log.tstart, 'X').format('HH:mm:ss') + ' - ' + moment(log.tend, 'X').format('HH:mm:ss');
+    }
+
+    var count_time = parseInt(log.work_count * 10 / 60) + 'h ' + (log.work_count * 10)%60 + 'm';
+    count_time += ' (' + parseInt(log.no_work_count * 10 / 60) + 'h ' + (log.no_work_count * 10)%60 + 'm)';
 
     screenshot += '<div class="screen">';
     screenshot += '<div class="screen-text-top">' + time + '</div>';
     screenshot += '<img src="/preview_screenshots/'+log.screenshot_preview+'" alt="..." height="156px" width="280px" class="img-rounded item" data-url="'+log.screenshot+'" data-type="'+
         type+'" data-tstart="'+log.tstart+'" data-tend="'+log.tend+'" data-log-task="'+log.task+'" data-log-ai="'+log.ai+'" data-project="'+project+'" data-task="'+task+'" data-user-id="'+log.user_id+'">';
     screenshot += '<div class="screen-text">';
-    screenshot += 'Activity index' + (log.count > 1 ? ' ≈ ' : ' ') + '<span>' + index + '%</span>';
+    screenshot += 'AI' + (log.count > 1 ? ' ≈ ' : ' ') + '<span>' + index + '% - '+count_time+'</span>';
     screenshot += '</div></div>&nbsp;&nbsp;';
 
     return screenshot;
@@ -354,9 +368,17 @@ function work_logs_modal_render(uid, logs, tstart, tend, type, project, task)
     var work_logs = '';
 
     if (tstart == tend) {
-        time = moment(tstart, 'X').format('Y-MM-DD HH:mm:ss');
+        time = moment(tstart, 'X').format('HH:mm:ss');
     } else {
-        time = moment(tstart, 'X').format('Y-MM-DD HH:mm:ss') + ' - ' + moment(tend, 'X').format('HH:mm:ss');
+        time = moment(tstart, 'X').format('Do HH:mm:ss') + ' - ' + moment(tend, 'X').format('HH:mm:ss');
+    }
+
+    if (type == 'day') {
+        time = moment(tstart, 'X').format('MMMM YYYY');
+    }
+
+    if (type == 'hour') {
+        time = moment(tstart, 'X').format('MMM Do YY') + ' ' + moment(tstart, 'X').format('HH:mm:ss') + ' - ' + moment(tend, 'X').format('HH:mm:ss');
     }
 
     if (logs.length > 0) {
@@ -480,7 +502,7 @@ function getWorkLogs(uid, dt_start, dt_end, type, render_type, project, task)
 
     if (diff > 1)
         type = 'day';
-    if (diff > 30)
+    if (diff > 31)
         type = 'month';
 
     $.ajax({
@@ -521,8 +543,6 @@ function getWorkLogs(uid, dt_start, dt_end, type, render_type, project, task)
                 var project = img.data('project');
                 var task = img.data('task');
 
-                //console.log(type + ' - ' + user_id + ' - ' + tstart + ' - ' + tend + ' - ' + project + ' - ' + task);
-
                 if (type == 'month') {
                     type = 'day';
 
@@ -555,26 +575,14 @@ function getWorkLogs(uid, dt_start, dt_end, type, render_type, project, task)
  * @param project
  * @param task
  */
-function load_logs(date_start, date_end, type, project, task)
+function load_logs()
 {
-    if (date_end == undefined)
-        date_end = 0;
-    if (project == 'All project' || project == 'Nothing selected' || project == undefined)
-        project = 0;
-    if (task == 'All task' || task == 'Nothing selected' || task == undefined)
-        task = 0;
-
-    var datetime_start = moment(date_start, 'D/M/Y').hours(0).minutes(0).seconds(0).format('X');
-    var datetime_end = moment((date_end == false ? date_start : date_end), 'D/M/Y').hours(23).minutes(59).seconds(59).format('X');
-
-    getProjects(datetime_start, datetime_end, project);
-    getTasks(datetime_start, datetime_end, project, task);
+    var i = 0;
 
     for (i = 0; i < localStorage.length; i++) {
         if (localStorage.key(i).startsWith('user')) {
             var id = localStorage[localStorage.key(i)];
-
-            getWorkLogs(id, datetime_start, datetime_end, type, 0, project, task);
+            load_user(id);
         }
     }
 }
@@ -586,69 +594,29 @@ function load_logs(date_start, date_end, type, project, task)
  * @param date_end
  * @param type
  */
-function load_user(input, date_start, date_end, type)
-{
-    var uid = $(input).attr('value');
-
-    var project = $('button[data-id="project"]').attr('title');
-    var task = $('button[data-id="task"]').attr('title');
+function load_user(uid) {
+    var project = $('select#project').val();
+    var task = $('select#task').val();
 
     if (project == 'All project' || project == 'Nothing selected' || project == undefined)
         project = 0;
     if (task == 'All task' || task == 'Nothing selected' || task == undefined)
         task = 0;
 
-    var datetime_start = moment(date_start, 'D/M/Y').hours(0).minutes(0).seconds(0).format('X');
-    var datetime_end = moment(date_end, 'D/M/Y').hours(23).minutes(59).seconds(59).format('X');
+    var datetime_start = moment($('input#datepicker-start').val(), 'D/M/Y').hours(0).minutes(0).seconds(0).format('X');
+    var datetime_end = moment($('input#datepicker-end').val(), 'D/M/Y').hours(23).minutes(59).seconds(59).format('X');
 
-    if ( $(input).prop('checked') ) {
-        $('div#main').css({ display: 'none' });
+    getProjects(datetime_start, datetime_end, project);
 
-        $(input).prop('checked', true);
+    if (project != 0)
+        getTasks(datetime_start, datetime_end, project, task);
 
-        // save to localStorage
-        if (is_admin)
-            localStorage['user'+uid] = uid;
-
-        getProjects(datetime_start, datetime_end, project);
-
-        if (project != 0)
-            getTasks(datetime_start, datetime_end, project, task);
-
+    if ($('.wl[user="'+uid+'"]').length == 0) {
         getWorkLogsTemplate(uid);
         getUserInfo(uid);
-        getWorkLogs(uid, datetime_start, datetime_end, type, 0, project, task);
-
-    } else {
-
-        $(input).prop('checked', false);
-
-        if (is_admin && localStorage.length >= 1) {
-            delete localStorage['user'+uid];
-        }
-
-        $('div#work-logs' + uid).remove();
-
-        getProjects(datetime_start, datetime_end);
-
-        if (project != 0)
-            getTasks(datetime_start, datetime_end);
-
-        if (localStorage.length > 0) {
-
-            for (i = 0; i < localStorage.length; i++) {
-                if (localStorage.key(i).startsWith('user')) {
-                    var id = localStorage[localStorage.key(i)];
-
-                    getWorkLogs(id, datetime_start, datetime_end, type, 0);
-                }
-            }
-        }
-
-        if ($('input:checkbox:checked').length == 0)
-            $('div#main').css({ display: 'block' });
-
     }
+
+    getWorkLogs(uid, datetime_start, datetime_end, 'hour', 0, project, task);
 }
 
 /**
@@ -659,21 +627,7 @@ function init()
     if (is_admin)
         getUsersList();
 
-    var datetime_start = moment().hours(0).minutes(0).seconds(0).format('X');
-    var datetime_end = moment().hours(23).minutes(59).seconds(59).format('X');
-
-    if (localStorage.length > 0)
-        getProjects(datetime_start, datetime_end);
-
-    for (i = 0; i < localStorage.length; i++) {
-        if (localStorage.key(i).startsWith('user')) {
-            var id = localStorage[localStorage.key(i)];
-
-            getWorkLogsTemplate(id);
-            getUserInfo(id);
-            getWorkLogs(id, datetime_start, datetime_end, 'hour', 0);
-        }
-    }
+    load_logs();
 
 }
 
@@ -714,7 +668,7 @@ $(document).ready(function(){
 
     $('#logs-modal-hour').off('hide.bs.modal');
     $('#logs-modal-hour').on('hide.bs.modal', function (e) {
-        if (modal_count > 2) {
+        if (modal_count >= 2) {
             $('body').css('overflow', 'hidden');
             $('#logs-modal-day').css('overflow', 'auto');
             $('#logs-modal-day').show();
@@ -796,7 +750,7 @@ $(document).ready(function(){
         $('#datepicker-start').val(date_start.date(1).format('DD/MM/Y'));
         $('#datepicker-end').val(date_start.endOf('month').format('DD/MM/Y'));
 
-        load_logs($('input#datepicker-start').val(), $('input#datepicker-end').val(), 'day');
+        load_logs();
     });
     // end
 
@@ -813,7 +767,7 @@ $(document).ready(function(){
         $('#datepicker-end').val(date_start);
 
         $('#months').selectpicker('val', 'Nothing selected');
-        load_logs(date_start, 0, 'hour');
+        load_logs();
         
         $('#task').empty();
         $('#task').selectpicker('refresh');
@@ -828,11 +782,8 @@ $(document).ready(function(){
     });
 
     $('#datepicker-end').on('dp.hide', function(e){
-        var date_start = $('input#datepicker-start').val();
-        var date_end = $('input#datepicker-end').val();
-
         $('#months').selectpicker('val', 'Nothing selected');
-        load_logs(date_start, date_end, 'hour');
+        load_logs();
         
         $('#task').empty();
         $('#task').selectpicker('refresh');
@@ -841,33 +792,20 @@ $(document).ready(function(){
 
     //select project
     $('#project').on('changed.bs.select', function (e) {
-        var project = e.target.value;
-        var datetime_start = moment($('input#datepicker-start').val(), 'D/M/Y').hours(0).minutes(0).seconds(0).format('X');
-        var datetime_end = moment($('input#datepicker-end').val(), 'D/M/Y').hours(23).minutes(59).seconds(59).format('X');
-        var type = 'hour';
-
-        if ($('button[data-id="months"]').attr('title') != 'Nothing selected')
-            type = 'day';
-
-        load_logs($('input#datepicker-start').val(), $('input#datepicker-end').val(), type, project);
-        getTasks(datetime_start, datetime_end, project);
+        load_logs();
 
         $('button[data-id="task"]').closest('div').removeClass('hide');
 
         $('#task').empty();
+
+        if (e.target.value == 'All project')
+            $('button[data-id="task"]').closest('div').addClass('hide');
     });
     // end
 
     // select task
     $('#task').on('changed.bs.select', function (e) {
-        var task = e.target.value;
-        var project = $('button[data-id="project"]').attr('title');
-        var type = 'hour';
-
-        if ($('button[data-id="months"]').attr('title') != 'Nothing selected')
-            type = 'day';
-
-        load_logs($('input#datepicker-start').val(), $('input#datepicker-end').val(), type, project, task);
+        load_logs();
     });
     // end
 
@@ -882,31 +820,51 @@ $(document).ready(function(){
     // end
 
     $(this).on('click', '#users-list li.user', function() {
-        var type = 'hour';
+        var uid = $(this).find('input').attr('value');
 
-        if ($('button[data-id="months"]').attr('title') != 'Nothing selected')
-            type = 'day';
-
-        load_user($(this).find('input'), $('input#datepicker-start').val(), $('input#datepicker-end').val(), type);
-
-        if ( $(this).find('input').prop('checked') == false ) {
+        if ( $('#users-list').find('li#user_all input').prop('checked') == true ) {
             $('ul#users-list').find('li#user_all input').prop('checked', false);
         }
 
         if ( $('#users-list li.user :input:checkbox:checked').length == $('#users-list li.user :input').length ) {
             $('ul#users-list').find('li#user_all_empty input').prop('checked', true);
         }
+
+        if ( $(this).find('input').prop('checked') ) {
+            $('div#main').css({ display: 'none' });
+
+            localStorage['user'+uid] = uid;
+
+            load_user(uid);
+
+        } else {
+
+            var count_log = 0;
+
+            if (localStorage.length >= 1) {
+                delete localStorage['user'+uid];
+            }
+
+            $('div#work-logs' + uid).remove();
+
+            count_log = $('.wl').find('.info .screen .screen-text').length;
+
+            if (count_log == 0) {
+                $('select#project').val('All project');
+                $('select#task').val('All task');
+                $('button[data-id="task"]').closest('div').addClass('hide');
+            }
+
+            load_logs();
+
+            if ($('input:checkbox:checked').length == 0)
+                $('div#main').css({ display: 'block' });
+
+        }
     });
 
     $(this).on('click', '#users-list li#user_all, #users-list li#user_all_empty', function(){
-        var project = $('button[data-id="project"]').attr('title');
-        var task = $('button[data-id="task"]').attr('title');
-        var type = 'hour';
-
         var checkbox = $(this);
-
-        if ($('button[data-id="months"]').attr('title') != 'Nothing selected')
-            type = 'day';
 
         if ($(this).attr('id') == 'user_all') {
             $('ul#users-list li#user_all_empty input').prop('checked', false);
@@ -919,12 +877,11 @@ $(document).ready(function(){
                 var uid = $(value).attr('value');
 
                 if (!$(value).prop('checked')) {
-                    localStorage['user'+uid] = uid;
                     $(value).prop('checked', true);
 
-                    getWorkLogsTemplate(uid);
-                    getUserInfo(uid);
-                    load_logs($('input#datepicker-start').val(), $('input#datepicker-end').val(), type, project, task);
+                    localStorage['user'+uid] = uid;
+
+                    load_user(uid);
                 } else {
                     if ($(checkbox).attr('id') == 'user_all') {
                         var user = $('div.work-logs div#work-logs' + uid);
