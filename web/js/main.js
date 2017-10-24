@@ -606,6 +606,11 @@ function load_user(uid) {
     var datetime_start = moment($('input#datepicker-start').val(), 'D/M/Y').hours(0).minutes(0).seconds(0).format('X');
     var datetime_end = moment($('input#datepicker-end').val(), 'D/M/Y').hours(23).minutes(59).seconds(59).format('X');
 
+    if ($('input#datepicker-start').val() == '')
+        datetime_start = moment().hours(0).minutes(0).seconds(0).format('X');
+    if ($('input#datepicker-end').val() == '')
+        datetime_end = moment().hours(23).minutes(59).seconds(59).format('X');
+
     getProjects(datetime_start, datetime_end, project);
 
     if (project != 0)
