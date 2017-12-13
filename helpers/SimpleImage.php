@@ -6,7 +6,8 @@
  * Date: 12.10.17
  * Time: 14:49
  */
-namespace app\components\helpers;
+
+namespace app\helpers;
 
 class SimpleImage
 {

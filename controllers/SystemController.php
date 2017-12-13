@@ -8,11 +8,10 @@
 
 namespace app\controllers;
 
-use app\components\helpers\SimpleImage;
+use app\helpers\SimpleImage;
 use app\controllers\base\BaseController;
 use app\models\User;
 use app\models\WorkLog;
-use GuzzleHttp\Client;
 use yii\db\Query;
 use yii\web\HttpException;
 

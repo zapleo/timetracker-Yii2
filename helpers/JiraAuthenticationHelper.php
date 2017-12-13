@@ -18,7 +18,7 @@ class JiraAuthenticationHelper
 
     public function __construct($email, $password)
     {
-        $this->client = new Client(['base_uri' => 'https://zapleo.atlassian.net/rest/api/2/']);
+        $this->client = new Client(['base_uri' => \Yii::$app->params['jira_url'].'/rest/api/2/']);
         $this->authorization = 'Basic ' . base64_encode($email . ':' . $password);
     }
 
