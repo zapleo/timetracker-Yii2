@@ -44,6 +44,8 @@ class DefaultController extends Controller
      */
     protected function checkWorkTime($datetime)
     {
+        date_default_timezone_set('Europe/Kiev');
+
         // workTime
         $work_time = 0;
 

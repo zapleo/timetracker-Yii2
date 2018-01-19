@@ -61,7 +61,7 @@ $config = [
         ],
     ],
     'params' => $params,
-    'timeZone' => date_default_timezone_get()
+    'timeZone' => 'Europe/Kiev',
 ];
 
 if (YII_ENV_DEV) {
