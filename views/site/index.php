@@ -13,7 +13,7 @@ $this->registerJsFile('@web/js/lib/moment-with-locales.min.js', ['depends' => 'a
 $this->registerJsFile('@web/js/lib/bootstrap-datetimepicker.min.js', ['depends' => 'app\assets\AppAsset']);
 $this->registerJsFile('@web/js/lib/jquery.mCustomScrollbar.concat.min.js', ['depends' => 'app\assets\AppAsset']);
 $this->registerJsFile('@web/js/lib/bootstrap-select.min.js', ['depends' => 'app\assets\AppAsset']);
-$this->registerJsFile('@web/js/main.js', ['depends' => 'app\assets\AppAsset']);
+$this->registerJsFile('@web/js/main.js?t='.time(), ['depends' => 'app\assets\AppAsset']);
 ?>
 <div class="site-index">
 
