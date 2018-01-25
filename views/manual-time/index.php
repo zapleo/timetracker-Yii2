@@ -1,15 +1,17 @@
 <?php
 /* @var $this yii\web\View */
 
+use kartik\select2\Select2;
+use yii\helpers\ArrayHelper;
 use yii\widgets\LinkPager;
 
 $this->title = 'Manual time';
 
 $this->registerCssFile('@web/css/callout.css', ['depends' => 'app\assets\AppAsset']);
-$this->registerCssFile('@web/css/manual_time.css', ['depends' => 'app\assets\AppAsset']);
+$this->registerCssFile('@web/css/manual_time.css?t='.time(), ['depends' => 'app\assets\AppAsset']);
 
 $this->registerJsFile('@web/js/lib/moment-with-locales.min.js', ['depends' => 'app\assets\AppAsset']);
-$this->registerJsFile('@web/js/convert_time.js', ['depends' => 'app\assets\AppAsset']);
+$this->registerJsFile('@web/js/convert_time.js?t='.time(), ['depends' => 'app\assets\AppAsset']);
 
 $status = [
     \app\models\ManualTime::STATUS_PENDING => 'warning',
@@ -20,6 +22,37 @@ $status = [
 <div class="wl">
     <div class="jumbotron">
         <h1>Manual time - <?=\yii\helpers\Html::a('Add', ['create'])?></h1>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-8">
+            <div class="btn-group">
+                <button id="all" type="button" class="btn btn-default <?= (\Yii::$app->request->get('status', false) === 'all' || !\Yii::$app->request->get('status', false) ? 'disabled' : '') ?>">
+                    All <span class="label label-default"><?= $count['all'] ?></span>
+                </button>
+                <button id="pending" type="button" class="btn btn-default <?= (\Yii::$app->request->get('status', false) === 'pending' ? 'disabled' : '') ?>">
+                    Penging <span class="label label-warning"><?= $count['pending'] ?></span>
+                </button>
+                <button id="rejected" type="button" class="btn btn-default <?= (\Yii::$app->request->get('status', false) === 'rejected' ? 'disabled' : '') ?>">
+                    Rejected <span class="label label-danger"><?= $count['rejected'] ?></span>
+                </button>
+                <button id="added" type="button" class="btn btn-default <?= (\Yii::$app->request->get('status', false) === 'added' ? 'disabled' : '') ?>">
+                    Added <span class="label label-success"><?= $count['added'] ?></span>
+                </button>
+            </div>
+        </div>
+        <div class="col-xs-4">
+            <?= Select2::widget([
+                'id' => 'users',
+                'name' => 'user',
+                'data' => ArrayHelper::map($users, 'id', 'email'),
+                'value' => \Yii::$app->request->get('user', false),
+                'options' => ['placeholder' => 'Select a user...', 'data-status' => \Yii::$app->request->get('status', 'all')],
+                'pluginOptions' => [
+                    'allowClear' => false
+                ],
+            ]) ?>
+        </div>
     </div>
 
     <?php foreach ($models as $model): ?>
@@ -71,11 +104,9 @@ $status = [
     <?php endforeach; ?>
 
     <?php if (empty($models)): ?>
-        <div class="row well">
-            <div class="form-group">
-                <p class="lead">Empty!</p>
-                Manual time not found!
-            </div>
+        <div class="bs-callout bs-callout-default">
+            <p class="lead">Empty!</p>
+            Manual time not found!
         </div>
     <?php endif; ?>
 

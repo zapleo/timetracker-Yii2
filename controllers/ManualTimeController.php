@@ -63,14 +63,53 @@ class ManualTimeController extends BaseController
     }
 
     /**
-     * @return string
+     * @param bool $status
+     *
+     * @param bool $user
+     *
+     * @return mixed
      */
-    public function actionIndex()
+    public function countItems($status = false, $user = false)
     {
         $query = ManualTime::find();
 
-        if (!Yii::$app->user->identity->isAdmin())
+        if (!Yii::$app->user->identity->isAdmin()) {
             $query = $query->where(['user_id' => Yii::$app->user->id]);
+        } elseif ($user != false) {
+            $query = $query->where(['user_id' => $user]);
+        }
+
+        if ($status !== false)
+            $query->andWhere(['status' => $status]);
+
+        return $query->count();
+    }
+
+    /**
+     * @param string $status
+     *
+     * @param bool   $user
+     *
+     * @return string
+     */
+    public function actionIndex($status = 'all', $user = false)
+    {
+        $query = ManualTime::find();
+
+        if (!Yii::$app->user->identity->isAdmin()) {
+            $query = $query->where(['user_id' => Yii::$app->user->id]);
+        } elseif ($user != false) {
+            $query = $query->where(['user_id' => $user]);
+        }
+
+        $model_status = [
+            'pending' => ManualTime::STATUS_PENDING,
+            'rejected' => ManualTime::STATUS_REJECTED,
+            'added' => ManualTime::STATUS_ADDED
+        ];
+
+        if (!empty($status) && $status != 'all')
+            $query->andWhere(['status' => $model_status[$status]]);
 
         $countQuery = clone $query;
         $pages = new Pagination(['pageSize' => 10, 'totalCount' => $countQuery->count()]);
@@ -79,9 +118,25 @@ class ManualTimeController extends BaseController
             ->limit($pages->limit)
             ->all();
 
+        $counters = [
+            'all' => $this->countItems(false, $user),
+            'pending' => $this->countItems(ManualTime::STATUS_PENDING, $user),
+            'rejected' => $this->countItems(ManualTime::STATUS_REJECTED, $user),
+            'added' => $this->countItems(ManualTime::STATUS_ADDED, $user)
+        ];
+
+        $users = User::find()->select(['id', 'email', 'hide'])->where(['hide' => User::STATUS_ACTIVE]);
+
+        if (!Yii::$app->user->identity->isAdmin())
+            $users = $users->andWhere(['id' => Yii::$app->user->id]);
+
+        $users = $users->orderBy('email')->all();
+
         return $this->render('index', [
             'models' => $models,
-            'pages' => $pages
+            'pages' => $pages,
+            'count' => $counters,
+            'users' => $users
         ]);
     }
 
