@@ -3,7 +3,7 @@
 /* @var $this \yii\web\View */
 /* @var $content string */
 
-use app\components\ProfileWidget;
+use app\widgets\ProfileWidget;
 use yii\helpers\Html;
 use yii\bootstrap\Nav;
 use yii\bootstrap\NavBar;
@@ -21,9 +21,9 @@ AppAsset::register($this);
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <?= Html::csrfMetaTags() ?>
     <title><?= Html::encode($this->title) ?></title>
-    <?= $this->render('js_options');?>
     <link rel="icon" type="image/png" href="/favicon.png">
     <?php $this->head() ?>
+    <?= $this->render('js_options');?>
 </head>
 <body>
 <?php $this->beginBody() ?>
@@ -39,7 +39,7 @@ AppAsset::register($this);
     ]);
     ?>
 
-    <?php if (!Yii::$app->user->isGuest) {
+    <?php if (!Yii::$app->user->isGuest && Yii::$app->controller->id == 'site' && Yii::$app->controller->action->id == 'index') {
         echo Nav::widget([
             'options' => ['class' => 'navbar-nav navbar-left'],
             'items' => [
@@ -79,7 +79,10 @@ AppAsset::register($this);
     NavBar::end();
     ?>
 
-    <?= $this->render('navigation') ?>
+    <?php
+        if (!Yii::$app->user->isGuest && Yii::$app->controller->id == 'site' && Yii::$app->controller->action->id == 'index')
+            echo $this->render('navigation');
+    ?>
 
     <div class="container">
         <?= Breadcrumbs::widget([

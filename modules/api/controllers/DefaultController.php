@@ -2,6 +2,7 @@
 
 namespace app\modules\api\controllers;
 
+use app\helpers\WorkTime;
 use app\models\TrackerVersion;
 use app\models\User;
 use app\models\WorkLog;
@@ -17,11 +18,6 @@ use yii\web\Response;
  */
 class DefaultController extends Controller
 {
-    const TIME_START = 8;
-    const TIME_END = 18;
-
-    //TODO: сохранять timestamp вместо date
-
     public function behaviors()
     {
         Yii::$app->controller->enableCsrfValidation = false;
@@ -36,31 +32,6 @@ class DefaultController extends Controller
         ];
 
         return $behaviors;
-    }
-
-    /**
-     * @param $datetime
-     * @return int
-     */
-    protected function checkWorkTime($datetime)
-    {
-        date_default_timezone_set('Europe/Kiev');
-
-        // workTime
-        $work_time = 0;
-
-        // hour (int)
-        $hour = date('H', $datetime);
-        // day (int)
-        $day = date('N', $datetime);
-
-        if ($hour >= self::TIME_START && $hour < self::TIME_END)
-            $work_time = 1;
-
-        if ($day == 6 || $day == 7)
-            $work_time = 0;
-
-        return $work_time;
     }
 
     /**
@@ -83,8 +54,8 @@ class DefaultController extends Controller
             $log->countKeyboardEvent = $worklog['countKeyboardEvent'];
             $log->activityIndex = $worklog['activityIndex'];
             $log->issueKey = $worklog['issueKey'];
-            $log->workTime = $this->checkWorkTime($time);
-            $log->dateTime = date('Y-m-d H:i:s',$time);
+            $log->workTime = WorkTime::check($time);
+            $log->dateTime = date('Y-m-d H:i:s', $time);
 
             if ($log->save())
                 return $log->id;

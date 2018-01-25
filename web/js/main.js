@@ -296,8 +296,8 @@ function screenshot_block_render(log, type, project, task)
 
     screenshot += '<div class="screen">';
     screenshot += '<div class="screen-text-top">' + time + '</div>';
-    screenshot += '<img src="/preview_screenshots/'+log.screenshot_preview+'" alt="..." height="156px" width="280px" class="img-rounded item" data-url="'+log.screenshot+'" data-type="'+
-        type+'" data-tstart="'+log.tstart+'" data-tend="'+log.tend+'" data-log-task="'+log.task+'" data-log-ai="'+log.ai+'" data-project="'+project+'" data-task="'+task+'" data-user-id="'+log.user_id+'">';
+    screenshot += '<img src="'+(log.screenshot_preview != null ? '/preview_screenshots/'+log.screenshot_preview : '/img/default.png')+'" alt="..." height="156px" width="280px" class="img-rounded item" data-url="'+(log.screenshot.indexOf('.jpg') > 0 ? '/screenshots/' + log.screenshot : '/img/default_manual_time.jpg')+'" data-type="'+
+        type+'" data-tstart="'+log.tstart+'" data-tend="'+log.tend+'" data-log-task="'+log.task+'" data-log-ai="'+log.ai+'" data-project="'+project+'" data-task="'+task+'" data-user-id="'+log.user_id+'" data-comment="'+log.comment+'">';
     screenshot += '<div class="screen-text">';
     screenshot += 'AI' + (log.count > 1 ? ' ≈ ' : ' ') + '<span>' + index + '% - '+count_time+'</span>';
     screenshot += '</div></div>&nbsp;&nbsp;';
@@ -328,8 +328,8 @@ function work_logs_carousel_render(el)
         }
 
         indicators += '></li>';
-        items += '">' + '<a href="/screenshots/'+$(this).data('url')+'" target="_blank">' +
-            '<img src="/screenshots/'+$(this).data('url')+'" alt="Screenshot"></a><div class="carousel-caption">' +
+        items += '">' + '<a href="'+$(this).data('url')+'" target="_blank">' +
+            '<img src="'+$(this).data('url')+'" alt="Screenshot"></a><div class="carousel-caption">' +
             '<h3>'+time+'</h3><h4><a href="https://zapleo.atlassian.net/browse/'+$(this).data('log-task')+'" target="_blank">#'+$(this).data('log-task')+'</a> - AI '+$(this).data('log-ai')+'%</h4>' +
             '</div></div>';
     });
@@ -339,7 +339,7 @@ function work_logs_carousel_render(el)
     modal.find('div.carousel-inner').empty().append(items);
 
     $('img').one('error', function() {
-        this.src = base_url + '/img/default-full.png';
+        this.src = base_url + '/img/default_full.jpg';
     });
 
     modal.modal();
@@ -637,6 +637,7 @@ function init()
 }
 
 $(document).ready(function(){
+
     if (!is_admin && !localStorage['user'+user_id]) {
         localStorage.clear();
         localStorage['user' + user_id] = user_id;

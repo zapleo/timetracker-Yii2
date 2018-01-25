@@ -6,7 +6,7 @@
  * Time: 11:34
  */
 
-namespace app\components;
+namespace app\widgets;
 
 use Yii;
 use yii\base\Widget;
@@ -24,8 +24,6 @@ class ProfileWidget extends Widget
     public function run()
     {
         $user = Yii::$app->user->identity->attributes;
-//        if($user['email'] == 'pro100dimaa@gmail.com')
-//            $user['photo'] = 'http://webvideo.in.ua/uploads/posts/volosatie-parni-zhopi.jpg';
         return $this->render('profile', ['user' => $user]);
     }
 }

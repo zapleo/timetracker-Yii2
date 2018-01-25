@@ -1,0 +1,20 @@
+.jumbotron {
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.well {
+    padding: 0 19px;
+}
+
+.comment {
+    margin: 10px 0 15px;
+}
+
+.bs-callout h4 {
+    margin-bottom: 0px;
+}
+
+.bs-callout small {
+    margin-bottom: 5px;
+}

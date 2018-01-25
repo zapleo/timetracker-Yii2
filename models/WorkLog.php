@@ -18,6 +18,9 @@ use Yii;
  * @property string $issueKey
  * @property integer $workTime
  * @property integer $timestamp
+ * @property string $comment
+ * @property string $manual_time_id
+ * @property integer $work_log_id
  *
  * @property User $user
  */
@@ -38,10 +41,12 @@ class WorkLog extends \yii\db\ActiveRecord
     {
         return [
             [['activityIndex', 'countMouseEvent', 'countKeyboardEvent', 'screenshot', 'user_id', 'issueKey'], 'required'],
-            [['activityIndex', 'countMouseEvent', 'countKeyboardEvent', 'user_id', 'workTime', 'timestamp'], 'integer'],
+            [['activityIndex', 'countMouseEvent', 'countKeyboardEvent', 'user_id', 'workTime', 'timestamp', 'manual_time_id', 'work_log_id'], 'integer'],
             [['dateTime'], 'safe'],
             [['screenshot', 'screenshot_preview'], 'string', 'max' => 255],
+            [['screenshot'], 'unique'],
             [['issueKey'], 'string', 'max' => 10],
+            [['comment'], 'string'],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['user_id' => 'id']],
         ];
     }
@@ -62,7 +67,10 @@ class WorkLog extends \yii\db\ActiveRecord
             'user_id' => 'User ID',
             'issueKey' => 'Issue Key',
             'workTime' => 'Work Time',
-            'timestamp' => 'Time'
+            'timestamp' => 'Time',
+            'comment' => 'Comment',
+            'manual_time_id' => 'Manual time',
+            'work_log_id' => 'Jira work log'
         ];
     }
 

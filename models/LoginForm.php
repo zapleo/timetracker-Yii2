@@ -2,9 +2,13 @@
 
 namespace app\models;
 
+use app\components\Auth;
+use app\components\Client;
+use app\helpers\JiraApiHelper;
+use app\helpers\Security;
 use Yii;
 use yii\base\Model;
-use app\helpers\JiraAuthenticationHelper;
+use app\helpers\JiraHelper;
 
 /**
  * LoginForm is the model behind the login form.
@@ -59,11 +63,15 @@ class LoginForm extends Model
 
     /**
      * Logs in a user using the provided username and password.
+     *
      * @return bool whether the user is logged in successfully
+     * @throws \yii\base\Exception
      */
     public function login()
     {
         if ($this->validate()) {
+            Security::encrypt($this->password, $this->user->id);
+
             return Yii::$app->user->login($this->getUser(), $this->rememberMe ? 3600*24*30 : 0);
         }
         return false;
@@ -82,10 +90,21 @@ class LoginForm extends Model
         return $this->_user;
     }
 
+    /**
+     * @return array|bool
+     */
     public function getUserFromJira()
     {
         if ($this->user_jira === false) {
-            $this->user_jira = (new JiraAuthenticationHelper($this->email, $this->password))->getUser();
+            $token = (new Auth([
+                'username' => $this->email,
+                'password' => $this->password
+            ]))->getToken();
+
+            if (empty($token))
+                $this->user_jira = false;
+
+            $this->user_jira = (new JiraApiHelper($token))->getUser();
         }
         return $this->user_jira;
     }

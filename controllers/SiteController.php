@@ -3,14 +3,12 @@
 namespace app\controllers;
 
 use app\models\SignUpForm;
-use app\models\User;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\Response;
 use yii\filters\VerbFilter;
 use app\models\LoginForm;
-use app\models\ContactForm;
 
 class SiteController extends Controller
 {
@@ -68,6 +66,11 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
+        $cookies = Yii::$app->request->cookies;
+
+        if (!$cookies->has('key'))
+            return $this->actionLogout();
+
         return $this->render('index');
     }
 
@@ -75,6 +78,7 @@ class SiteController extends Controller
      * Login action.
      *
      * @return Response|string
+     * @throws \yii\base\Exception
      */
     public function actionLogin()
     {
@@ -102,6 +106,10 @@ class SiteController extends Controller
         ]);
     }
 
+    /**
+     * @return string|\yii\web\Response
+     * @throws \yii\base\Exception
+     */
     public function actionSignUp()
     {
         if (!Yii::$app->user->isGuest) {
@@ -128,13 +136,18 @@ class SiteController extends Controller
      */
     public function actionLogout()
     {
+        $cookies = Yii::$app->response->cookies;
+        $cookies->add(new \yii\web\Cookie([
+            'name' => 'key',
+            'value' => '',
+        ]));
+        $cookies->add(new \yii\web\Cookie([
+            'name' => 'token',
+            'value' => '',
+        ]));
+
         Yii::$app->user->logout();
 
         return $this->goHome();
-    }
-
-    public function actionAbout()
-    {
-        return $this->render('about');
     }
 }

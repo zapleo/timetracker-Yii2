@@ -17,11 +17,12 @@ use yii\web\IdentityInterface;
  * @property string $photo
  * @property string $phone
  * @property string $skype
- * @property integer $rights
+ * @property integer $role
  * @property integer $hide
  * @property string $auth_key
  * @property string $password_hash
  * @property string $password_reset_token
+ * @property string $token_hash
  *
  * @property WorkLog[] $workLogs
  */
@@ -29,6 +30,10 @@ class User extends ActiveRecord implements IdentityInterface
 {
     const STATUS_ACTIVE = 0;
     const STATUS_HIDE = 1;
+
+    // Role
+    const ROLE_USER = 10;
+    const ROLE_ADMIN = 20;
 
     /**
      * @inheritdoc
@@ -45,10 +50,10 @@ class User extends ActiveRecord implements IdentityInterface
     {
         return [
             [['first_name', 'email', 'team', 'skype'], 'required'],
-            [['rights', 'hide'], 'integer'],
+            [['role', 'hide'], 'integer'],
             [['last_name', 'first_name', 'team', 'phone', 'skype'], 'string', 'max' => 30],
             [['email'], 'string', 'max' => 40],
-            [['photo', 'password_hash', 'password_reset_token'], 'string', 'max' => 255],
+            [['photo', 'password_hash', 'password_reset_token', 'token_hash'], 'string', 'max' => 255],
             [['auth_key'], 'string', 'max' => 32],
             [['email'], 'unique'],
         ];
@@ -68,11 +73,12 @@ class User extends ActiveRecord implements IdentityInterface
             'photo' => 'Photo',
             'phone' => 'Phone',
             'skype' => 'Skype',
-            'rights' => 'Rights',
+            'role' => 'Role',
             'hide' => 'Hide',
             'auth_key' => 'Auth Key',
             'password_hash' => 'Password Hash',
             'password_reset_token' => 'Password Reset Token',
+            'token_hash' => 'Token hash'
         ];
     }
 
@@ -168,6 +174,6 @@ class User extends ActiveRecord implements IdentityInterface
 
     public function isAdmin()
     {
-        return $this->rights;
+        return $this->role === self::ROLE_ADMIN;
     }
 }

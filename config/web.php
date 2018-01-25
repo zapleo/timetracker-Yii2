@@ -53,10 +53,23 @@ $config = [
             'rules' => [
                 'api/<action>' => 'api/default/<action>',
                 'api/<action>/<id:[\d]+>' => 'api/default/<action>',
-                '<action>' => 'site/<action>',
+                'index' => 'site/index',
+                'login' => 'site/login',
+                'logout' => 'site/logout',
+                'sign-up' => 'site/sign-up',
                 '<controller>' => '<controller>/index',
                 '<controller>/<action>' => '<controller>/<action>',
                 '<controller>/<action>/<id:[\d]+>' => '<controller>/<action>',
+            ],
+        ],
+        'httpclient' => [
+            'class' =>'understeam\httpclient\Client',
+            'detectMimeType' => true, // automatically transform request to data according to response Content-Type header
+            'requestOptions' => [
+                // see guzzle request options documentation
+            ],
+            'requestHeaders' => [
+                // specify global request headers (can be overrided with $options on making request)
             ],
         ],
     ],
