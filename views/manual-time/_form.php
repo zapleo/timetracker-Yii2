@@ -43,7 +43,7 @@ var issue = ".(!$model->isNewRecord ? json_encode($model->issue_key) : 0).";
     <div class="row">
         <div class="col-md-6">
             <div class="form-group field-start_timestamp">
-                <label class="control-label" for="start_timestamp">Projects</label>
+                <label class="control-label" for="start_timestamp">Project</label>
                 <?= Select2::widget([
                     'name' => 'projects',
                     'id' => 'projects',
@@ -56,7 +56,7 @@ var issue = ".(!$model->isNewRecord ? json_encode($model->issue_key) : 0).";
         </div>
         <div class="col-md-6">
             <div class="form-group field-start_timestamp">
-                <label class="control-label" for="start_timestamp">Issues</label>
+                <label class="control-label" for="start_timestamp">Issue</label>
                 <?= Select2::widget([
                     'name' => 'issues',
                     'id' => 'issues',

@@ -96,7 +96,7 @@ class ManualTime extends \yii\db\ActiveRecord
             'user_id' => 'User',
             'start_timestamp' => 'Start Timestamp',
             'end_timestamp' => 'End Timestamp',
-            'issue_key' => 'Issue key',
+            'issue_key' => 'Issue',
             'comment' => 'Comment',
             'comment_admin' => 'Comment admin',
             'status' => 'Status',

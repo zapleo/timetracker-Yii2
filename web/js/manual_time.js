@@ -108,6 +108,13 @@ $(document).ready(function(){
             alert('Промежуток времени выбран не верно!');
             return false;
         }
+
+        var interval = ($('#manualtime-end_timestamp').val() - $('#manualtime-start_timestamp').val()) / 60;
+
+        if (interval >= 20 * 60) {
+            alert('Выбран слишком большой промежуток времени!');
+            return false;
+        }
     });
 
     if ($('#manualtime-start_timestamp').val().length > 0 && $('#manualtime-end_timestamp').val().length > 0) {

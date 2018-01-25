@@ -6,7 +6,7 @@ $this->registerCssFile('@web/css/manual_time.css', ['depends' => 'app\assets\App
 
 $this->registerJsFile('@web/js/lib/moment-with-locales.min.js', ['depends' => 'app\assets\AppAsset']);
 $this->registerJsFile('@web/js/lib/bootstrap-datetimepicker.min.js', ['depends' => 'app\assets\AppAsset']);
-$this->registerJsFile('@web/js/manual_time.js', ['depends' => 'app\assets\AppAsset']);
+$this->registerJsFile('@web/js/manual_time.js?t='.time(), ['depends' => 'app\assets\AppAsset']);
 
 $this->title = 'Add manual time';
 ?>
