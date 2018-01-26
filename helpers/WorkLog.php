@@ -21,7 +21,7 @@ class WorkLog
      */
     public function addManualTime(ManualTime $model)
     {
-        for ($start = $model->start_timestamp; $start <= $model->end_timestamp; $start += 600) {
+        for ($start = $model->start_timestamp + 600; $start <= $model->end_timestamp; $start += 600) {
             $log = WorkLogModel::findOne(['user_id' => $model->user_id, 'timestamp' => $start]);
 
             if (!is_null($log))
@@ -42,14 +42,25 @@ class WorkLog
 
             $work_log->manual_time_id = $model->id;
 
-            if ($work_log->save()) {
-                $token = (new Auth())->getToken();
-                $jlog = (new JiraApiHelper($token))->addWorkLog($model->issue_key, $start, $model->comment);
-
-                $work_log->work_log_id = $jlog['id'];
-                $work_log->save();
-            }
+            $work_log->save();
         }
+
+        $this->addManualTimeToJira($model);
+    }
+
+    /**
+     * @param \app\models\ManualTime $model
+     *
+     * @throws \understeam\jira\Exception
+     */
+    public function addManualTimeToJira(ManualTime $model)
+    {
+        $interval = $model->end_timestamp - $model->start_timestamp;
+
+        $token = (new Auth())->getToken();
+        $jlog = (new JiraApiHelper($token))->addWorkLog($model->issue_key, $model->start_timestamp, $interval, $model->comment);
+
+        WorkLogModel::updateAll(['work_log_id' => $jlog['id']], 'manual_time_id = '.$model->id);
     }
 
     /**
@@ -62,11 +73,13 @@ class WorkLog
     {
         $logs = WorkLogModel::findAll(['manual_time_id' => $manual_time_id]);
 
-        foreach ($logs as $log) {
-            $token = (new Auth())->getToken();
-            (new JiraApiHelper($token))->deleteWorkLog($log->issueKey, $log->work_log_id);
+        if (empty($logs))
+            return;
 
+        $token = (new Auth())->getToken();
+        (new JiraApiHelper($token))->deleteWorkLog($logs[0]['issueKey'], $logs[0]['work_log_id']);
+
+        foreach ($logs as $log)
             $log->delete();
-        }
     }
 }

@@ -201,10 +201,10 @@ class ManualTimeController extends BaseController
         if (!Yii::$app->user->identity->isAdmin() && Yii::$app->user->id != $model->created_by)
             throw new BadRequestHttpException('Access denied!');
 
-        $status = $model->status;
-
-        if ($model->delete() && $status === ManualTime::STATUS_ADDED)
+        if ($model->status === ManualTime::STATUS_ADDED)
             (new WorkLogHelper())->deleteManualTime($id);
+
+        $model->delete();
 
         return $this->redirect(['index']);
     }

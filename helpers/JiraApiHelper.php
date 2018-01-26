@@ -128,12 +128,20 @@ class JiraApiHelper
      * @return bool|mixed|\Psr\Http\Message\ResponseInterface|\SimpleXMLElement|string
      * @throws \understeam\jira\Exception
      */
-    public function addWorkLog($issue, $started, $comment)
+    public function addWorkLog($issue, $started, $time_spent, $comment)
     {
+        $user = $this->getUser();
+
         $data = [
+            'author' => [
+                'accountId' => $user['accountId']
+            ],
+            'updateAuthor' => [
+                'accountId' => $user['accountId']
+            ],
             'comment' => (empty($comment) ? 'Manual time' : $comment),
             'started' => date('Y-m-d\TH:i:s.vO', $started),
-            'timeSpent' => '10m'
+            'timeSpent' => ($time_spent / 60).'m'
         ];
 
         $worl_log = $this->client->post('issue/'.$issue.'/worklog', $data);
