@@ -9,12 +9,12 @@
 namespace app\helpers;
 
 use app\components\Client;
+use app\models\User;
 use understeam\jira\Exception;
 
 class JiraApiHelper
 {
     public $client;
-    public $user;
 
     private $issues = [];
 
@@ -25,14 +25,25 @@ class JiraApiHelper
         ]);
     }
 
-    public function getUser()
+    /**
+     * @param bool $email
+     *
+     * @return bool|mixed|\Psr\Http\Message\ResponseInterface|\SimpleXMLElement|string
+     */
+    public function getUser($email = false)
     {
-        if (empty($user))
-            $this->user = $this->client->get('myself');
+        if (empty($email)) {
+            $user = $this->client->get('myself');
+        } else {
+            $user = $this->client->get('user/search', ['username' => $email]);
+        }
 
-        return $this->user;
+        return $user;
     }
 
+    /**
+     * @return bool|mixed|\Psr\Http\Message\ResponseInterface|\SimpleXMLElement|string
+     */
     public function getPermissions()
     {
         return $this->client->get('mypermissions');
@@ -120,17 +131,19 @@ class JiraApiHelper
     }
 
     /**
+     * @param $email
      * @param $issue
      * @param $started
      *
+     * @param $time_spent
      * @param $comment
      *
      * @return bool|mixed|\Psr\Http\Message\ResponseInterface|\SimpleXMLElement|string
      * @throws \understeam\jira\Exception
      */
-    public function addWorkLog($issue, $started, $time_spent, $comment)
+    public function addWorkLog($email, $issue, $started, $time_spent, $comment)
     {
-        $user = $this->getUser();
+        $user = $this->getUser($email);
 
         $data = [
             'author' => [
