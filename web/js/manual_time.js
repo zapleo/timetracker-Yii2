@@ -111,7 +111,7 @@ $(document).ready(function(){
 
         var interval = ($('#manualtime-end_timestamp').val() - $('#manualtime-start_timestamp').val()) / 60;
 
-        if (interval >= 20 * 60) {
+        if (interval >= 5 * 24 * 60) {
             alert('Выбран слишком большой промежуток времени!');
             return false;
         }
