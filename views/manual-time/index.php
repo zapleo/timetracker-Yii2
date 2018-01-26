@@ -21,7 +21,7 @@ $status = [
 ?>
 <div class="wl">
     <div class="jumbotron">
-        <h1>Manual time - <?=\yii\helpers\Html::a('Add', ['create'])?></h1>
+        <h1>Manual time <?=\yii\helpers\Html::a('<span class="glyphicon glyphicon-plus"></span> Add', ['create'], ['class' => 'btn btn-success'])?></h1>
     </div>
 
     <div class="row">
