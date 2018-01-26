@@ -38,7 +38,7 @@ class JiraApiHelper
             $user = $this->client->get('user/search', ['username' => $email]);
         }
 
-        return $user;
+        return (isset($user[0]) ? $user[0] : $user);
     }
 
     /**
