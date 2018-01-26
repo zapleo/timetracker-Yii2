@@ -58,7 +58,7 @@ class WorkLog
         $interval = $model->end_timestamp - $model->start_timestamp;
 
         $token = (new Auth())->getToken();
-        $jlog = (new JiraApiHelper($token))->addWorkLog($model->user->email, $model->issue_key, $model->start_timestamp, $interval, $model->comment);
+        $jlog = (new JiraApiHelper($token))->addWorkLog($model->issue_key, $model->start_timestamp, $interval, $model->comment);
 
         WorkLogModel::updateAll(['work_log_id' => $jlog['id']], 'manual_time_id = '.$model->id);
     }

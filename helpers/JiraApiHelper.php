@@ -131,7 +131,6 @@ class JiraApiHelper
     }
 
     /**
-     * @param $email
      * @param $issue
      * @param $started
      *
@@ -141,29 +140,21 @@ class JiraApiHelper
      * @return bool|mixed|\Psr\Http\Message\ResponseInterface|\SimpleXMLElement|string
      * @throws \understeam\jira\Exception
      */
-    public function addWorkLog($email, $issue, $started, $time_spent, $comment)
+    public function addWorkLog($issue, $started, $time_spent, $comment)
     {
-        $user = $this->getUser($email);
-
         $data = [
-            'author' => [
-                'accountId' => $user['accountId']
-            ],
-            'updateAuthor' => [
-                'accountId' => $user['accountId']
-            ],
             'comment' => (empty($comment) ? 'Manual time' : $comment),
             'started' => date('Y-m-d\TH:i:s.vO', $started),
             'timeSpent' => ($time_spent / 60).'m'
         ];
 
-        $worl_log = $this->client->post('issue/'.$issue.'/worklog', $data);
+        $work_log = $this->client->post('issue/'.$issue.'/worklog', $data);
 
         if (isset($worl_log['errorMessages'])) {
-            throw new Exception('Jira search error: ' . $worl_log['errorMessages'][0]);
+            throw new Exception('Jira search error: ' . $work_log['errorMessages'][0]);
         }
 
-        return $worl_log;
+        return $work_log;
     }
 
     /**
