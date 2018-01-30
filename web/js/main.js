@@ -94,13 +94,20 @@ function getUserInfo(id)
             var user_info = '';
 
             var total_time = $('div.work-logs div#work-logs' + id).find('div.info').attr('total_time');
-            //var count_time = $('div.work-logs div#work-logs' + id).find('div.info').attr('count_time');
+            var work_time = $('div.work-logs div#work-logs' + id).find('div.info').attr('work_time');
+            var no_work_time = $('div.work-logs div#work-logs' + id).find('div.info').attr('no_work_time');
+            var manual_time = $('div.work-logs div#work-logs' + id).find('div.info').attr('manual_time');
             var ai = $('div.work-logs div#work-logs' + id).find('div.info').attr('ai');
 
             user_info += '<div class="text-center">';
             user_info += '<img src="' + user.photo + '" alt="..." width="100px" height="100px" class="img-rounded" id="myPopover' + id + '" data-toggle="popover">';
             user_info += '</div>';
-            user_info += '<div class="text-center" id="uname"><h4>' + user.first_name + ' ' + user.last_name + '</h4><div><span id="total" class="label label-default">Total time: ' + total_time + '</span> <span id="ai" class="label label-primary" title="Activity index">AI ≈ ' + ai + '</span></div><div id="count"></div></div>';
+            user_info += '<div class="text-center" id="uname"><h4>' + user.first_name + ' ' + user.last_name + '</h4><div><span id="total" class="label label-default">Total time: ' + total_time + '</span> <span id="ai" class="label label-primary" title="Activity index">AI ≈ ' + ai + '</span></div><div id="count">';
+
+            if (work_time != undefined)
+                user_info += '<span class="label label-success" title="Work time">' + work_time + '</span> <span class="label label-danger" title="No work time">' + no_work_time + '</span> <span class="label label-warning" title="Manual time">' + manual_time + '</span>';
+
+            user_info += '</div></div>';
 
             $('div#user' + id).empty().append(user_info);
 
@@ -433,7 +440,8 @@ function work_logs_render(uid, logs, type, project, task)
 {
     var count_ai = 0, count = 0, work_count = 0, no_work_count = 0, manual_time_count = 0;
     var total_time = '0h 00m';
-    var count_time = '<span class="label label-success" title="Work time">0h 00m</span> <span class="label label-danger" title="No work time">0h 00m</span> <span class="label label-warning" title="Manual time">0h 00m</span>';
+    var work_time, no_work_time, manual_time;
+    //var count_time = '<span class="label label-success" title="Work time">0h 00m</span> <span class="label label-danger" title="No work time">0h 00m</span> <span class="label label-warning" title="Manual time">0h 00m</span>';
     var ai = '0';
 
     var work_logs = '<div class="mcs-horizontal">';
@@ -453,9 +461,10 @@ function work_logs_render(uid, logs, type, project, task)
         ai = Math.round(count_ai / count);
         total_time = work_count + no_work_count + manual_time_count;
         total_time = parseInt(total_time * 10 / 60) + 'h ' + (total_time * 10)%60 + 'm';
-        count_time = '<span class="label label-success" title="Work time">' + parseInt(work_count * 10 / 60) + 'h ' + (work_count * 10)%60 + 'm</span>';
-        count_time += ' <span class="label label-danger" title="No work time">' + parseInt(no_work_count * 10 / 60) + 'h ' + (no_work_count * 10)%60 + 'm</span>';
-        count_time += ' <span class="label label-warning" title="Manual time">' + parseInt(manual_time_count * 10 / 60) + 'h ' + (manual_time_count * 10)%60 + 'm</span>';
+
+        work_time = parseInt(work_count * 10 / 60) + 'h ' + (work_count * 10)%60 + 'm';
+        no_work_time = parseInt(no_work_count * 10 / 60) + 'h ' + (no_work_count * 10)%60 + 'm';
+        manual_time = parseInt(manual_time_count * 10 / 60) + 'h ' + (manual_time_count * 10)%60 + 'm';
 
     } else {
 
@@ -481,12 +490,16 @@ function work_logs_render(uid, logs, type, project, task)
 
     var wl = $('div.work-logs div#work-logs' + uid);
 
-    wl.find('div.info').attr('total_time', total_time).attr('ai', ai);
+    wl.find('div.info').attr('total_time', total_time).
+        attr('ai', ai).attr('work_time', work_time).
+        attr('no_work_time', no_work_count).
+        attr('manual_time', manual_time);
     wl.find('div#uname span#total').empty().append('Total time: ' + total_time);
     wl.find('div#uname span#ai').empty().append('AI ≈ ' + ai + '%');
 
-    if (logs.length > 0)
-        wl.find('div#uname div#count').empty().append(count_time);
+    if (logs.length > 0) {
+        wl.find('div#uname div#count').empty().append('<span class="label label-success" title="Work time">' + work_time + '</span> <span class="label label-danger" title="No work time">' + no_work_time + '</span> <span class="label label-warning" title="Manual time">' + manual_time + '</span>');
+    }
 
     wl.show();
 }
