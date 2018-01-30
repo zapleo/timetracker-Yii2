@@ -405,11 +405,17 @@ function work_logs_modal_render(uid, logs, tstart, tend, type, project, task)
         });
 
         ai = Math.round(count_ai / count);
-        total_time = work_count + no_work_count + manual_time_count;
-        total_time = parseInt(total_time * 10 / 60) + 'h ' + (total_time * 10)%60 + 'm';
-        //count_time = '<span class="label label-success" title="Work time">' + parseInt(work_count * 10 / 60) + 'h ' + (work_count * 10)%60 + 'm</span>';
-        //count_time += ' <span class="label label-danger" title="Over time">' + parseInt(no_work_count * 10 / 60) + 'h ' + (no_work_count * 10)%60 + 'm</span>';
-        //count_time += ' <span class="label label-warning" title="Manual time">' + parseInt(manual_time_count * 10 / 60) + 'h ' + (manual_time_count * 10)%60 + 'm</span>';
+        var total_time_sum = work_count + no_work_count + manual_time_count;
+        total_time = parseInt(total_time_sum * 10 / 60) + 'h ' + (total_time_sum * 10)%60 + 'm';
+
+        if (work_count > 0)
+            total_time += ' <span class="label label-success" title="Work time">' + parseInt(work_count * 10 / 60) + 'h ' + (work_count * 10)%60 + 'm</span>';
+
+        if (no_work_count > 0)
+            total_time += ' <span class="label label-danger" title="Over time">' + parseInt(no_work_count * 10 / 60) + 'h ' + (no_work_count * 10)%60 + 'm</span>';
+
+        if (manual_time_count > 0)
+            total_time += ' <span class="label label-warning" title="Manual time">' + parseInt(manual_time_count * 10 / 60) + 'h ' + (manual_time_count * 10)%60 + 'm</span>';
 
     }
 
