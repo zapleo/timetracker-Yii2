@@ -110,7 +110,7 @@
 }
 
 .user_info {
-    padding-top: 1%;
+    padding-top: 10px;
 }
 
 .popover {
@@ -179,6 +179,20 @@
     border: none;
     outline: 0 !important;
     padding: 15px;
+}
+
+.user_info h4 {
+    margin-bottom: 0px;
+    margin-top: 2px;
+}
+
+div#uname {
+    cursor: default;
+}
+
+.modal-footer h4#time {
+    display: inline-block;
+    float: left;
 }
 
 @media (min-width: 768px) {
@@ -258,6 +272,10 @@
         margin-top: 5px;
         margin-bottom: 5px;
     }
+
+    div#count {
+        margin-bottom: 5px;
+    }
 }
 
 @media (max-width: 992px) {
@@ -272,7 +290,7 @@
     }
 
     .info {
-        margin-top: 20px;
+        margin-top: 10px;
         border-top: 1px solid #e3e3e3;
         margin-left: 5px;
         margin-right: 5px;

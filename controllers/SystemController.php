@@ -219,8 +219,10 @@ class SystemController extends BaseController
              SUBSTRING_INDEX(GROUP_CONCAT(CAST(issueKey AS CHAR) ORDER BY timestamp DESC), \',\', 1 ) as task,
              COUNT(id) as count, SUM(activityIndex) as ai,
              MIN(timestamp) as tstart, MAX(timestamp) as tend,
-             SUM(CASE WHEN workTime = 1 THEN 1 ELSE 0 END) work_count,
-             SUM(CASE WHEN workTime = 0 THEN 1 ELSE 0 END) no_work_count']);
+             SUM(CASE WHEN workTime = 1 AND manual_time_id IS NULL THEN 1 ELSE 0 END) work_count,
+             SUM(CASE WHEN workTime = 0 AND manual_time_id IS NULL THEN 1 ELSE 0 END) no_work_count,
+             SUM(CASE WHEN manual_time_id IS NOT NULL THEN 1 ELSE 0 END) manual_time_count']);
+
             if ($type == 'hour')
                 $query->groupBy([' DATE_FORMAT(FROM_UNIXTIME(timestamp), \'%y%m%d%H\')']);
             elseif ($type == 'day')

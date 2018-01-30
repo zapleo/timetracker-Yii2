@@ -7,7 +7,7 @@ $this->title = 'Time Tracker';
 $this->registerCssFile('@web/css/lib/bootstrap-datetimepicker.css', ['depends' => 'app\assets\AppAsset']);
 $this->registerCssFile('@web/css/lib/jquery.mCustomScrollbar.min.css', ['depends' => 'app\assets\AppAsset']);
 $this->registerCssFile('@web/css/lib/bootstrap-select.min.css', ['depends' => 'app\assets\AppAsset']);
-$this->registerCssFile('@web/css/main.css', ['depends' => 'app\assets\AppAsset']);
+$this->registerCssFile('@web/css/main.css?t='.time(), ['depends' => 'app\assets\AppAsset']);
 
 $this->registerJsFile('@web/js/lib/moment-with-locales.min.js', ['depends' => 'app\assets\AppAsset']);
 $this->registerJsFile('@web/js/lib/bootstrap-datetimepicker.min.js', ['depends' => 'app\assets\AppAsset']);

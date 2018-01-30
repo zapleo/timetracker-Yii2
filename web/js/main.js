@@ -93,13 +93,14 @@ function getUserInfo(id)
 
             var user_info = '';
 
-            var count_time = $('div.work-logs div#work-logs' + id).find('div.info').attr('count_time');
+            var total_time = $('div.work-logs div#work-logs' + id).find('div.info').attr('total_time');
+            //var count_time = $('div.work-logs div#work-logs' + id).find('div.info').attr('count_time');
             var ai = $('div.work-logs div#work-logs' + id).find('div.info').attr('ai');
 
             user_info += '<div class="text-center">';
             user_info += '<img src="' + user.photo + '" alt="..." width="100px" height="100px" class="img-rounded" id="myPopover' + id + '" data-toggle="popover">';
             user_info += '</div>';
-            user_info += '<div class="text-center" id="uname">' + user.first_name + ' ' + user.last_name + '<div id="count">Time: ' + count_time + '</div><div id="ai">AI ≈ ' + ai + '</div></div>';
+            user_info += '<div class="text-center" id="uname"><h4>' + user.first_name + ' ' + user.last_name + '</h4><div><span id="total" class="label label-default">Total time: ' + total_time + '</span> <span id="ai" class="label label-primary" title="Activity index">AI ≈ ' + ai + '</span></div><div id="count"></div></div>';
 
             $('div#user' + id).empty().append(user_info);
 
@@ -291,15 +292,17 @@ function screenshot_block_render(log, type, project, task)
         time = moment(log.tstart, 'X').format('MMM Do YY') + ' ' + moment(log.tstart, 'X').format('HH:mm:ss') + ' - ' + moment(log.tend, 'X').format('HH:mm:ss');
     }
 
-    var count_time = parseInt(log.work_count * 10 / 60) + 'h ' + (log.work_count * 10)%60 + 'm';
-    count_time += ' (' + parseInt(log.no_work_count * 10 / 60) + 'h ' + (log.no_work_count * 10)%60 + 'm)';
+    //var count_time = parseInt(log.work_count * 10 / 60) + 'h ' + (log.work_count * 10)%60 + 'm';
+    //count_time += ' (' + parseInt(log.no_work_count * 10 / 60) + 'h ' + (log.no_work_count * 10)%60 + 'm)';
+    var total_time = log.work_count + log.no_work_count + log.manual_time_count;
+    total_time = parseInt(total_time * 10 / 60) + 'h ' + (total_time * 10)%60 + 'm';
 
     screenshot += '<div class="screen">';
     screenshot += '<div class="screen-text-top">' + time + '</div>';
     screenshot += '<img src="'+(log.screenshot_preview != null ? '/preview_screenshots/'+log.screenshot_preview : (log.screenshot.indexOf('.jpg') > 0 ? '/img/default.png' : '/img/default_mt_preview.png'))+'" alt="..." height="156px" width="280px" class="img-rounded item" data-url="'+(log.screenshot.indexOf('.jpg') > 0 ? '/screenshots/' + log.screenshot : '/img/default_manual_time.jpg')+'" data-type="'+
         type+'" data-tstart="'+log.tstart+'" data-tend="'+log.tend+'" data-log-task="'+log.task+'" data-log-ai="'+log.ai+'" data-project="'+project+'" data-task="'+task+'" data-user-id="'+log.user_id+'" data-comment="'+log.comment+'">';
     screenshot += '<div class="screen-text">';
-    screenshot += 'AI' + (log.count > 1 ? ' ≈ ' : ' ') + '<span>' + index + '% - '+count_time+'</span>';
+    screenshot += 'AI' + (log.count > 1 ? ' ≈ ' : ' ') + '<span>' + index + '% - '+total_time+'</span>';
     screenshot += '</div></div>&nbsp;&nbsp;';
 
     return screenshot;
@@ -359,8 +362,9 @@ function work_logs_carousel_render(el)
  */
 function work_logs_modal_render(uid, logs, tstart, tend, type, project, task)
 {
-    var count_ai = 0, count = 0, work_count = 0, no_work_count = 0;
-    var count_time = '0h 00m (0h 00m)';
+    var count_ai = 0, count = 0, work_count = 0, no_work_count = 0, manual_time_count = 0;
+    var total_time = '0h 00m';
+    //var count_time = '<span class="label label-success" title="Work time">0h 00m</span> <span class="label label-danger" title="No work time">0h 00m</span> <span class="label label-warning" title="Manual time">0h 00m</span>';
     var ai = '0';
 
     var modal = $('#logs-modal-'+type);
@@ -388,13 +392,17 @@ function work_logs_modal_render(uid, logs, tstart, tend, type, project, task)
             count += parseInt(log.count);
             work_count += parseInt(log.work_count);
             no_work_count += parseInt(log.no_work_count);
+            manual_time_count += parseInt(log.manual_time_count);
 
             work_logs += screenshot_block_render(log, type, project, task);
         });
 
         ai = Math.round(count_ai / count);
-        count_time = parseInt(work_count * 10 / 60) + 'h ' + (work_count * 10)%60 + 'm';
-        count_time += ' (' + parseInt(no_work_count * 10 / 60) + 'h ' + (no_work_count * 10)%60 + 'm)';
+        total_time = work_count + no_work_count + manual_time_count;
+        total_time = parseInt(total_time * 10 / 60) + 'h ' + (total_time * 10)%60 + 'm';
+        //count_time = '<span class="label label-success" title="Work time">' + parseInt(work_count * 10 / 60) + 'h ' + (work_count * 10)%60 + 'm</span>';
+        //count_time += ' <span class="label label-danger" title="No work time">' + parseInt(no_work_count * 10 / 60) + 'h ' + (no_work_count * 10)%60 + 'm</span>';
+        //count_time += ' <span class="label label-warning" title="Manual time">' + parseInt(manual_time_count * 10 / 60) + 'h ' + (manual_time_count * 10)%60 + 'm</span>';
 
     }
 
@@ -402,7 +410,7 @@ function work_logs_modal_render(uid, logs, tstart, tend, type, project, task)
 
     modal.find('div.modal-body').empty().append(work_logs);
     modal.find('h4.modal-title').empty().append('<span class="glyphicon glyphicon-calendar"></span> ' + time);
-    modal.find('div.modal-footer #time').empty().append('<span class="glyphicon glyphicon-time"></span> ' + count_time);
+    modal.find('div.modal-footer #time').empty().append('<span class="glyphicon glyphicon-time"></span> ' + total_time);
     modal.find('div.modal-footer #index').empty().append('<span class="glyphicon glyphicon-signal"></span> ' + ai + '%');
 
     $('img').one('error', function() {
@@ -423,8 +431,9 @@ function work_logs_modal_render(uid, logs, tstart, tend, type, project, task)
  */
 function work_logs_render(uid, logs, type, project, task)
 {
-    var count_ai = 0, count = 0, work_count = 0, no_work_count = 0;
-    var count_time = '0h 00m (0h 00m)';
+    var count_ai = 0, count = 0, work_count = 0, no_work_count = 0, manual_time_count = 0;
+    var total_time = '0h 00m';
+    var count_time = '<span class="label label-success" title="Work time">0h 00m</span> <span class="label label-danger" title="No work time">0h 00m</span> <span class="label label-warning" title="Manual time">0h 00m</span>';
     var ai = '0';
 
     var work_logs = '<div class="mcs-horizontal">';
@@ -436,13 +445,17 @@ function work_logs_render(uid, logs, type, project, task)
             count += parseInt(log.count);
             work_count += parseInt(log.work_count);
             no_work_count += parseInt(log.no_work_count);
+            manual_time_count += parseInt(log.manual_time_count);
 
             work_logs += screenshot_block_render(log, type, project, task);
         });
 
         ai = Math.round(count_ai / count);
-        count_time = parseInt(work_count * 10 / 60) + 'h ' + (work_count * 10)%60 + 'm';
-        count_time += ' (' + parseInt(no_work_count * 10 / 60) + 'h ' + (no_work_count * 10)%60 + 'm)';
+        total_time = work_count + no_work_count + manual_time_count;
+        total_time = parseInt(total_time * 10 / 60) + 'h ' + (total_time * 10)%60 + 'm';
+        count_time = '<span class="label label-success" title="Work time">' + parseInt(work_count * 10 / 60) + 'h ' + (work_count * 10)%60 + 'm</span>';
+        count_time += ' <span class="label label-danger" title="No work time">' + parseInt(no_work_count * 10 / 60) + 'h ' + (no_work_count * 10)%60 + 'm</span>';
+        count_time += ' <span class="label label-warning" title="Manual time">' + parseInt(manual_time_count * 10 / 60) + 'h ' + (manual_time_count * 10)%60 + 'm</span>';
 
     } else {
 
@@ -468,9 +481,13 @@ function work_logs_render(uid, logs, type, project, task)
 
     var wl = $('div.work-logs div#work-logs' + uid);
 
-    wl.find('div.info').attr('count_time', count_time).attr('ai', ai);
-    wl.find('div#uname div#count').empty().append('Time: ' + count_time);
-    wl.find('div#uname div#ai').empty().append('AI ≈ ' + ai + '%');
+    wl.find('div.info').attr('total_time', total_time).attr('ai', ai);
+    wl.find('div#uname span#total').empty().append('Total time: ' + total_time);
+    wl.find('div#uname span#ai').empty().append('AI ≈ ' + ai + '%');
+
+    if (logs.length > 0)
+        wl.find('div#uname div#count').empty().append(count_time);
+
     wl.show();
 }
 
