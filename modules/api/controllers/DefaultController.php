@@ -106,7 +106,8 @@ class DefaultController extends Controller
 
     /**
      * @return array
-     * @throws BadRequestHttpException
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\web\BadRequestHttpException
      */
     public function actionLog()
     {
@@ -141,7 +142,8 @@ class DefaultController extends Controller
 
     /**
      * @return array
-     * @throws BadRequestHttpException
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\web\BadRequestHttpException
      */
     public function actionLogs()
     {

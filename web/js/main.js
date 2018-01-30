@@ -296,7 +296,7 @@ function screenshot_block_render(log, type, project, task)
 
     screenshot += '<div class="screen">';
     screenshot += '<div class="screen-text-top">' + time + '</div>';
-    screenshot += '<img src="'+(log.screenshot_preview != null ? '/preview_screenshots/'+log.screenshot_preview : '/img/default.png')+'" alt="..." height="156px" width="280px" class="img-rounded item" data-url="'+(log.screenshot.indexOf('.jpg') > 0 ? '/screenshots/' + log.screenshot : '/img/default_manual_time.jpg')+'" data-type="'+
+    screenshot += '<img src="'+(log.screenshot_preview != null ? '/preview_screenshots/'+log.screenshot_preview : (log.screenshot.indexOf('.jpg') > 0 ? '/img/default.png' : '/img/default_mt_preview.png'))+'" alt="..." height="156px" width="280px" class="img-rounded item" data-url="'+(log.screenshot.indexOf('.jpg') > 0 ? '/screenshots/' + log.screenshot : '/img/default_manual_time.jpg')+'" data-type="'+
         type+'" data-tstart="'+log.tstart+'" data-tend="'+log.tend+'" data-log-task="'+log.task+'" data-log-ai="'+log.ai+'" data-project="'+project+'" data-task="'+task+'" data-user-id="'+log.user_id+'" data-comment="'+log.comment+'">';
     screenshot += '<div class="screen-text">';
     screenshot += 'AI' + (log.count > 1 ? ' ≈ ' : ' ') + '<span>' + index + '% - '+count_time+'</span>';
