@@ -105,7 +105,7 @@ function getUserInfo(id)
             user_info += '<div class="text-center" id="uname"><h4>' + user.first_name + ' ' + user.last_name + '</h4><div><span id="total" class="label label-default">Total time: ' + total_time + '</span> <span id="ai" class="label label-primary" title="Activity index">AI ≈ ' + ai + '</span></div><div id="count">';
 
             if (work_time != undefined)
-                user_info += '<span class="label label-success" title="Work time">' + work_time + '</span> <span class="label label-danger" title="No work time">' + no_work_time + '</span> <span class="label label-warning" title="Manual time">' + manual_time + '</span>';
+                user_info += '<span class="label label-success" title="Work time">' + work_time + '</span> <span class="label label-danger" title="Over time">' + no_work_time + '</span> <span class="label label-warning" title="Manual time">' + manual_time + '</span>';
 
             user_info += '</div></div>';
 
@@ -301,8 +301,8 @@ function screenshot_block_render(log, type, project, task)
 
     //var count_time = parseInt(log.work_count * 10 / 60) + 'h ' + (log.work_count * 10)%60 + 'm';
     //count_time += ' (' + parseInt(log.no_work_count * 10 / 60) + 'h ' + (log.no_work_count * 10)%60 + 'm)';
-    var total_time = log.work_count + log.no_work_count + log.manual_time_count;
-    total_time = parseInt(total_time * 10 / 60) + 'h ' + (total_time * 10)%60 + 'm';
+    var total_time_sum = log.work_count + log.no_work_count + log.manual_time_count;
+    var total_time = parseInt(total_time_sum * 10 / 60) + 'h ' + (total_time_sum * 10)%60 + 'm';
 
     screenshot += '<div class="screen">';
     screenshot += '<div class="screen-text-top">' + time + '</div>';
@@ -371,7 +371,7 @@ function work_logs_modal_render(uid, logs, tstart, tend, type, project, task)
 {
     var count_ai = 0, count = 0, work_count = 0, no_work_count = 0, manual_time_count = 0;
     var total_time = '0h 00m';
-    //var count_time = '<span class="label label-success" title="Work time">0h 00m</span> <span class="label label-danger" title="No work time">0h 00m</span> <span class="label label-warning" title="Manual time">0h 00m</span>';
+    //var count_time = '<span class="label label-success" title="Work time">0h 00m</span> <span class="label label-danger" title="Over time">0h 00m</span> <span class="label label-warning" title="Manual time">0h 00m</span>';
     var ai = '0';
 
     var modal = $('#logs-modal-'+type);
@@ -408,7 +408,7 @@ function work_logs_modal_render(uid, logs, tstart, tend, type, project, task)
         total_time = work_count + no_work_count + manual_time_count;
         total_time = parseInt(total_time * 10 / 60) + 'h ' + (total_time * 10)%60 + 'm';
         //count_time = '<span class="label label-success" title="Work time">' + parseInt(work_count * 10 / 60) + 'h ' + (work_count * 10)%60 + 'm</span>';
-        //count_time += ' <span class="label label-danger" title="No work time">' + parseInt(no_work_count * 10 / 60) + 'h ' + (no_work_count * 10)%60 + 'm</span>';
+        //count_time += ' <span class="label label-danger" title="Over time">' + parseInt(no_work_count * 10 / 60) + 'h ' + (no_work_count * 10)%60 + 'm</span>';
         //count_time += ' <span class="label label-warning" title="Manual time">' + parseInt(manual_time_count * 10 / 60) + 'h ' + (manual_time_count * 10)%60 + 'm</span>';
 
     }
@@ -441,7 +441,7 @@ function work_logs_render(uid, logs, type, project, task)
     var count_ai = 0, count = 0, work_count = 0, no_work_count = 0, manual_time_count = 0;
     var total_time = '0h 00m';
     var work_time, no_work_time, manual_time;
-    //var count_time = '<span class="label label-success" title="Work time">0h 00m</span> <span class="label label-danger" title="No work time">0h 00m</span> <span class="label label-warning" title="Manual time">0h 00m</span>';
+    //var count_time = '<span class="label label-success" title="Work time">0h 00m</span> <span class="label label-danger" title="Over time">0h 00m</span> <span class="label label-warning" title="Manual time">0h 00m</span>';
     var ai = '0';
 
     var work_logs = '<div class="mcs-horizontal">';
@@ -492,13 +492,15 @@ function work_logs_render(uid, logs, type, project, task)
 
     wl.find('div.info').attr('total_time', total_time).
         attr('ai', ai).attr('work_time', work_time).
-        attr('no_work_time', no_work_count).
+        attr('no_work_time', no_work_time).
         attr('manual_time', manual_time);
     wl.find('div#uname span#total').empty().append('Total time: ' + total_time);
     wl.find('div#uname span#ai').empty().append('AI ≈ ' + ai + '%');
 
     if (logs.length > 0) {
-        wl.find('div#uname div#count').empty().append('<span class="label label-success" title="Work time">' + work_time + '</span> <span class="label label-danger" title="No work time">' + no_work_time + '</span> <span class="label label-warning" title="Manual time">' + manual_time + '</span>');
+        wl.find('div#uname div#count').empty().append('<span class="label label-success" title="Work time">' + work_time + '</span> <span class="label label-danger" title="Over time">' + no_work_time + '</span> <span class="label label-warning" title="Manual time">' + manual_time + '</span>');
+    } else {
+        wl.find('div#uname div#count').empty();
     }
 
     wl.show();
