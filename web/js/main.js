@@ -301,7 +301,7 @@ function screenshot_block_render(log, type, project, task)
 
     //var count_time = parseInt(log.work_count * 10 / 60) + 'h ' + (log.work_count * 10)%60 + 'm';
     //count_time += ' (' + parseInt(log.no_work_count * 10 / 60) + 'h ' + (log.no_work_count * 10)%60 + 'm)';
-    var total_time_sum = log.work_count + log.no_work_count + log.manual_time_count;
+    var total_time_sum = parseInt(log.work_count) + parseInt(log.no_work_count) + parseInt(log.manual_time_count);
     var total_time = parseInt(total_time_sum * 10 / 60) + 'h ' + (total_time_sum * 10)%60 + 'm';
 
     screenshot += '<div class="screen">';
